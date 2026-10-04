@@ -1,0 +1,119 @@
+name: Build & Release OMKAR-AUTOMATIC-VIDEO-MAKER APK
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*'
+      - 'release-*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release-apk:
+    name: Build Release APK (OMKAR-AUTOMATIC-VIDEO-MAKER.apk)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+
+      - name: Prepare Environment Configuration
+        run: |
+          if [ ! -f .env ]; then
+            cp .env.example .env
+          fi
+          if [ -f debug.keystore.base64 ] && [ ! -f debug.keystore ]; then
+            base64 -d debug.keystore.base64 > debug.keystore
+          fi
+
+      - name: Prepare Ephemeral or Secret Release Keystore
+        env:
+          SECRET_KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          SECRET_STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          SECRET_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          KEYSTORE_FILE="${RUNNER_TEMP}/ci-upload-key.jks"
+          rm -f "${KEYSTORE_FILE}"
+          if [ -n "${SECRET_KEYSTORE_BASE64}" ] && [ -n "${SECRET_STORE_PASSWORD}" ] && [ -n "${SECRET_KEY_PASSWORD}" ]; then
+            echo "${SECRET_KEYSTORE_BASE64}" | base64 -d > "${KEYSTORE_FILE}"
+            echo "KEYSTORE_PATH=${KEYSTORE_FILE}" >> $GITHUB_ENV
+            echo "STORE_PASSWORD=${SECRET_STORE_PASSWORD}" >> $GITHUB_ENV
+            echo "KEY_PASSWORD=${SECRET_KEY_PASSWORD}" >> $GITHUB_ENV
+          else
+            CI_PASS="omkar_ci_ephemeral_pass_2026"
+            keytool -genkeypair -v \
+              -keystore "${KEYSTORE_FILE}" \
+              -alias upload \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -storepass "${CI_PASS}" \
+              -keypass "${CI_PASS}" \
+              -dname "CN=Omkar Automatic Video Maker, OU=Mobile, O=NovaCut, L=Studio, S=CA, C=US"
+            echo "KEYSTORE_PATH=${KEYSTORE_FILE}" >> $GITHUB_ENV
+            echo "STORE_PASSWORD=${CI_PASS}" >> $GITHUB_ENV
+            echo "KEY_PASSWORD=${CI_PASS}" >> $GITHUB_ENV
+          fi
+
+      - name: Run Unit Tests & Build Fresh Release APK
+        run: |
+          rm -rf app/build/outputs/apk/
+          gradle :app:testDebugUnitTest :app:assembleRelease :app:assembleDebug prepareDistributionApk --no-daemon
+
+      - name: Verify Generated OMKAR-AUTOMATIC-VIDEO-MAKER.apk
+        run: |
+          APK_PATH="app/build/outputs/apk/release/OMKAR-AUTOMATIC-VIDEO-MAKER.apk"
+          if [ ! -f "${APK_PATH}" ]; then
+            echo "ERROR: ${APK_PATH} was not generated!"
+            exit 1
+          fi
+          ls -lh "${APK_PATH}"
+          sha256sum "${APK_PATH}"
+
+      - name: Upload OMKAR-AUTOMATIC-VIDEO-MAKER.apk Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OMKAR-AUTOMATIC-VIDEO-MAKER
+          path: app/build/outputs/apk/release/OMKAR-AUTOMATIC-VIDEO-MAKER.apk
+          if-no-files-found: error
+          overwrite: true
+
+      - name: Publish GitHub Release APK on Version Tag
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Omkar Automatic Video Maker (${{ github.ref_name }})"
+          body: |
+            ### OMKAR AUTOMATIC VIDEO MAKER — Release Build (${{ github.ref_name }})
+            - **APK File**: `OMKAR-AUTOMATIC-VIDEO-MAKER.apk`
+            - **Version**: `4.0.0` (`versionCode = 4`)
+            - **Features Included**:
+              - Sacred Source Video Geometry & Single-Pass Rotation Normalization (`0°/90°/180°/270°`)
+              - Speech & Meaning-Aware Sentence Splitting (`>= 1.2s` guardrails, frame-aligned cuts)
+              - Automatic Start (`100%`) → End (`106%–114%`) Smooth Keyframe Engine (Simple & Smart Modes)
+              - Direct CapCut Draft Export (`draft_content.json` + `draft_meta_info.json` + `.zip`) & MP4 Video Export
+          files: |
+            app/build/outputs/apk/release/OMKAR-AUTOMATIC-VIDEO-MAKER.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
