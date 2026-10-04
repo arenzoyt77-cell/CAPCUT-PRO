@@ -57,7 +57,7 @@ enum class AppScreen {
 
 enum class HomeBottomTab(val label: String) {
     EDIT("Edit"),
-    TEMPLATES("Templates"),
+    TEMPLATES("Template"),
     AI_LAB("AI Lab"),
     PROJECTS("Projects"),
     INBOX("Inbox"),

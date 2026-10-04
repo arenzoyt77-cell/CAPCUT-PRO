@@ -185,11 +185,11 @@ fun HomeAndTabsScreen(viewModel: NovaCutViewModel) {
                                 )
                             },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = CyanAccent,
+                                selectedIconColor = Color(0xFF04080E),
                                 selectedTextColor = CyanAccent,
-                                indicatorColor = CyanAccent.copy(alpha = 0.16f),
-                                unselectedIconColor = Color(0xFF6E788C),
-                                unselectedTextColor = Color(0xFF6E788C)
+                                indicatorColor = CyanAccent,
+                                unselectedIconColor = Color(0xFF7D8799),
+                                unselectedTextColor = Color(0xFF7D8799)
                             )
                         )
                     }
@@ -306,25 +306,24 @@ private fun HomeTopBar(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            // CapCut Logo Icon in Top Header
+            // Premium Dark Video Editor Clapperboard Logo Icon
             Box(
                 modifier = Modifier
                     .size(36.dp)
-                    .shadow(6.dp, RoundedCornerShape(10.dp), ambientColor = CyanAccent, spotColor = CyanAccent)
+                    .shadow(8.dp, RoundedCornerShape(10.dp), ambientColor = CyanAccent, spotColor = CyanAccent)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(Color.White)
-                    .border(
-                        width = 1.dp,
-                        brush = Brush.linearGradient(listOf(CyanAccent, VioletAccent)),
-                        shape = RoundedCornerShape(10.dp)
+                    .background(
+                        Brush.linearGradient(
+                            colors = listOf(CyanAccent, Color(0xFF3D7BFF), VioletAccent)
+                        )
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.img_capcut_icon),
-                    contentDescription = "CapCut Logo",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                Icon(
+                    imageVector = Icons.Default.MovieCreation,
+                    contentDescription = "App Logo",
+                    tint = Color(0xFF05070B),
+                    modifier = Modifier.size(20.dp)
                 )
             }
             Spacer(modifier = Modifier.width(10.dp))
@@ -730,16 +729,16 @@ private fun HeroActionCard(
     val backgroundBrush = if (isPrimary) {
         Brush.linearGradient(
             colors = listOf(
-                Color(0xFF0D283A),
-                Color(0xFF132038),
-                Color(0xFF1E1738)
+                Color(0xFF2CE8FF),
+                Color(0xFF3B8DFF),
+                Color(0xFF764DFF)
             )
         )
     } else {
         Brush.linearGradient(
             colors = listOf(
-                Color(0xFF151B29),
-                Color(0xFF101520)
+                Color(0xFF151929),
+                Color(0xFF101422)
             )
         )
     }
@@ -747,16 +746,16 @@ private fun HeroActionCard(
     val borderBrush = if (isPrimary) {
         Brush.linearGradient(
             colors = listOf(
-                CyanAccent,
-                Color(0xFF2979FF),
-                VioletAccent
+                Color(0xFF8CF6FF),
+                Color(0xFF5CA0FF),
+                Color(0xFF9E7BFF)
             )
         )
     } else {
         Brush.linearGradient(
             colors = listOf(
-                Color(0xFF27324A),
-                Color(0xFF1D2536)
+                VioletAccent.copy(alpha = 0.45f),
+                Color(0xFF232B42)
             )
         )
     }
@@ -767,17 +766,17 @@ private fun HeroActionCard(
                 scaleX = scale
                 scaleY = scale
             }
-            .height(98.dp)
+            .height(102.dp)
             .shadow(
-                elevation = if (isPrimary) 10.dp else 4.dp,
+                elevation = if (isPrimary) 12.dp else 4.dp,
                 shape = RoundedCornerShape(16.dp),
-                ambientColor = if (isPrimary) CyanAccent else Color.Black,
-                spotColor = if (isPrimary) CyanAccent else Color.Black
+                ambientColor = if (isPrimary) CyanAccent else VioletAccent,
+                spotColor = if (isPrimary) CyanAccent else VioletAccent
             )
             .clip(RoundedCornerShape(16.dp))
             .background(backgroundBrush)
             .border(
-                width = if (isPrimary) 1.5.dp else 1.dp,
+                width = 1.dp,
                 brush = borderBrush,
                 shape = RoundedCornerShape(16.dp)
             )
@@ -801,17 +800,12 @@ private fun HeroActionCard(
                 Box(
                     modifier = Modifier
                         .size(34.dp)
-                        .clip(RoundedCornerShape(10.dp))
+                        .clip(CircleShape)
                         .background(
                             if (isPrimary) {
-                                Brush.linearGradient(listOf(CyanAccent, Color(0xFF0091EA)))
+                                Color(0xFF071624).copy(alpha = 0.28f)
                             } else {
-                                Brush.linearGradient(
-                                    listOf(
-                                        VioletAccent.copy(alpha = 0.28f),
-                                        CyanAccent.copy(alpha = 0.18f)
-                                    )
-                                )
+                                VioletAccent.copy(alpha = 0.24f)
                             }
                         ),
                     contentAlignment = Alignment.Center
@@ -819,20 +813,21 @@ private fun HeroActionCard(
                     Icon(
                         imageVector = icon,
                         contentDescription = title,
-                        tint = if (isPrimary) StudioBg else Color(0xFFD6CEFF),
-                        modifier = Modifier.size(20.dp)
+                        tint = if (isPrimary) Color.White else Color(0xFFD7C6FF),
+                        modifier = Modifier.size(19.dp)
                     )
                 }
 
                 if (isPrimary) {
                     Surface(
-                        color = CyanAccent.copy(alpha = 0.16f),
+                        color = Color(0xFF071624).copy(alpha = 0.28f),
                         shape = RoundedCornerShape(6.dp)
                     ) {
                         Text(
                             text = "CREATE",
                             style = MaterialTheme.typography.labelSmall,
-                            color = CyanAccent,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
@@ -843,14 +838,14 @@ private fun HeroActionCard(
                 Text(
                     text = title,
                     style = if (isPrimary) MaterialTheme.typography.titleLarge else MaterialTheme.typography.titleMedium,
-                    color = TextPrimary,
+                    color = if (isPrimary) Color(0xFF050A14) else TextPrimary,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1
                 )
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (isPrimary) Color(0xFFA8D8EA) else TextSecondary,
+                    color = if (isPrimary) Color(0xFF0B192C) else TextSecondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )

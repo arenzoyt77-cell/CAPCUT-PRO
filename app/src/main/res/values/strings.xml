@@ -1,12 +1,11 @@
 <resources>
     <string name="app_name">CapCut</string>
-    <string name="hero_subtitle">Video create</string>
     <string name="cta_new_video">New video</string>
     <string name="cta_edit_photo">Edit photo</string>
     <string name="section_recent_projects">Recent projects</string>
-    <string name="section_studio_tools">Studio toolkit</string>
+    <string name="section_studio_tools">Studio Toolkit</string>
     <string name="nav_edit">Edit</string>
-    <string name="nav_templates">Templates</string>
+    <string name="nav_templates">Template</string>
     <string name="nav_ai_lab">AI Lab</string>
     <string name="nav_projects">Projects</string>
     <string name="nav_inbox">Inbox</string>
@@ -14,5 +13,5 @@
     <string name="picker_title">Select Media</string>
     <string name="picker_add">Add</string>
     <string name="editor_export">Export</string>
-    <string name="search_placeholder">Search CapCut templates, effects, filters, sounds…</string>
+    <string name="search_placeholder">Search templates, effects, filters, sounds…</string>
 </resources>
