@@ -2,6 +2,8 @@ package com.example.data
 
 import com.example.engine.EffectFilterTransitionCatalog
 import com.example.engine.VideoRenderEngine
+import com.example.model.AspectRatioMode
+import com.example.model.TimelineClip
 import com.example.model.VideoProject
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -11,64 +13,115 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.util.UUID
 
+/**
+ * Repository abstracting local Room database operations for projects and drafts.
+ */
 class ProjectRepository(private val projectDao: ProjectDao) {
 
-    private val moshi: Moshi = Moshi.Builder()
-        .add(KotlinJsonAdapterFactory())
-        .build()
+    private val moshi: Moshi by lazy {
+        Moshi.Builder()
+            .add(KotlinJsonAdapterFactory())
+            .build()
+    }
 
-    private val projectAdapter = moshi.adapter(VideoProject::class.java)
+    private val projectAdapter by lazy {
+        moshi.adapter(VideoProject::class.java)
+    }
 
     val allProjectsFlow: Flow<List<VideoProject>> = projectDao.observeAllProjects().map { entities ->
-        entities.mapNotNull { entity ->
-            deserializeProject(entity)
-        }
+        val parsed = entities.mapNotNull { entity -> deserializeProject(entity) }
+        parsed.ifEmpty { EffectFilterTransitionCatalog.buildDefaultSeedProjects() }
     }
+
+    val recentDraftEntitiesFlow: Flow<List<ProjectEntity>> = projectDao.observeRecentDrafts(15)
 
     suspend fun ensureSeedProjects() = withContext(Dispatchers.IO) {
         val current = projectDao.getAllProjectsOnce()
         if (current.isEmpty()) {
-            val starterTemplates = EffectFilterTransitionCatalog.templates.take(3)
-            val now = System.currentTimeMillis()
-            starterTemplates.forEachIndexed { idx, tpl ->
-                val proj = EffectFilterTransitionCatalog.buildProjectFromTemplate(tpl).copy(
-                    id = "seed_proj_${idx + 1}",
-                    createdAtMs = now - (idx + 1) * 3600_000L,
-                    updatedAtMs = now - idx * 1200_000L
+            val seedList = EffectFilterTransitionCatalog.buildDefaultSeedProjects()
+            val entities = seedList.mapIndexed { idx, proj ->
+                buildEntity(
+                    project = proj,
+                    isDraft = true,
+                    isRecoveredDraft = (idx == 0),
+                    lastPlayheadMs = if (idx == 0) 2400L else 0L
                 )
-                saveProject(proj)
             }
+            projectDao.upsertAllProjects(entities)
         }
     }
 
-    suspend fun saveProject(project: VideoProject, isRecoveredDraft: Boolean = false) = withContext(Dispatchers.IO) {
+    suspend fun saveProject(
+        project: VideoProject,
+        isDraft: Boolean = true,
+        isRecoveredDraft: Boolean = false,
+        lastPlayheadMs: Long = 0L
+    ) = withContext(Dispatchers.IO) {
         val updated = project.copy(updatedAtMs = System.currentTimeMillis())
-        val durationMs = VideoRenderEngine.computeProjectTotalDurationMs(updated)
-        val coverRes = updated.primaryClips.firstOrNull()?.sampleDrawableRes ?: updated.coverDrawableRes
-        val json = try {
-            projectAdapter.toJson(updated)
-        } catch (_: Exception) {
-            ""
-        }
-        val entity = ProjectEntity(
-            id = updated.id,
-            name = updated.name,
-            updatedAtMs = updated.updatedAtMs,
-            createdAtMs = updated.createdAtMs,
-            durationMs = durationMs,
-            aspectRatioLabel = updated.aspectRatio.label,
-            exportResolution = updated.exportResolution,
-            coverDrawableRes = coverRes,
-            clipsCount = updated.primaryClips.size + updated.overlayClips.size,
+        val entity = buildEntity(
+            project = updated,
+            isDraft = isDraft,
             isRecoveredDraft = isRecoveredDraft,
-            projectJson = json
+            lastPlayheadMs = lastPlayheadMs
         )
         projectDao.upsertProject(entity)
+    }
+
+    private fun buildEntity(
+        project: VideoProject,
+        isDraft: Boolean,
+        isRecoveredDraft: Boolean,
+        lastPlayheadMs: Long
+    ): ProjectEntity {
+        val durationMs = VideoRenderEngine.computeProjectTotalDurationMs(project)
+        val firstClip = project.primaryClips.firstOrNull()
+        val coverRes = EffectFilterTransitionCatalog.safeDrawableRes(
+            firstClip?.sampleDrawableRes ?: project.coverDrawableRes
+        )
+        val thumbUri = firstClip?.mediaUri.orEmpty()
+        val totalKeyframes = project.primaryClips.sumOf { it.keyframes.size } +
+            project.overlayClips.sumOf { it.keyframes.size } +
+            project.textClips.sumOf { it.keyframes.size } +
+            project.effectItems.sumOf { it.keyframes.size }
+        val estMb = ((durationMs / 1000f) * 2.4f).coerceAtLeast(3.2f)
+
+        val json = try {
+            projectAdapter.toJson(project)
+        } catch (_: Throwable) {
+            ""
+        }
+
+        return ProjectEntity(
+            id = project.id,
+            name = project.name,
+            updatedAtMs = project.updatedAtMs,
+            createdAtMs = project.createdAtMs,
+            durationMs = durationMs,
+            aspectRatioLabel = project.aspectRatio.label,
+            exportResolution = project.exportResolution,
+            exportFps = project.exportFps,
+            coverDrawableRes = coverRes,
+            thumbnailUri = thumbUri,
+            clipsCount = project.primaryClips.size + project.overlayClips.size,
+            effectsCount = project.effectItems.size,
+            keyframesCount = totalKeyframes,
+            fileSizeEstimateMb = estMb,
+            isDraft = isDraft,
+            isRecoveredDraft = isRecoveredDraft,
+            lastPlayheadMs = lastPlayheadMs,
+            projectJson = json
+        )
     }
 
     suspend fun loadProjectById(id: String): VideoProject? = withContext(Dispatchers.IO) {
         val entity = projectDao.getProjectById(id) ?: return@withContext null
         deserializeProject(entity)
+    }
+
+    suspend fun getLatestDraftProject(): Pair<VideoProject, Long>? = withContext(Dispatchers.IO) {
+        val entity = projectDao.getLatestDraft() ?: return@withContext null
+        val project = deserializeProject(entity) ?: return@withContext null
+        project to entity.lastPlayheadMs
     }
 
     suspend fun duplicateProject(project: VideoProject): VideoProject = withContext(Dispatchers.IO) {
@@ -94,19 +147,59 @@ class ProjectRepository(private val projectDao: ProjectDao) {
         projectDao.deleteProjectById(projectId)
     }
 
-    private fun deserializeProject(entity: ProjectEntity): VideoProject? {
-        return try {
+    fun deserializeProject(entity: ProjectEntity): VideoProject? {
+        try {
             if (entity.projectJson.isNotBlank()) {
-                projectAdapter.fromJson(entity.projectJson)?.copy(
-                    id = entity.id,
-                    name = entity.name,
-                    updatedAtMs = entity.updatedAtMs
-                )
-            } else {
-                null
+                val parsed = projectAdapter.fromJson(entity.projectJson)
+                if (parsed != null) {
+                    return parsed.copy(
+                        id = entity.id,
+                        name = entity.name,
+                        updatedAtMs = entity.updatedAtMs,
+                        coverDrawableRes = EffectFilterTransitionCatalog.safeDrawableRes(parsed.coverDrawableRes),
+                        primaryClips = parsed.primaryClips.map {
+                            it.copy(sampleDrawableRes = EffectFilterTransitionCatalog.safeDrawableRes(it.sampleDrawableRes))
+                        },
+                        overlayClips = parsed.overlayClips.map {
+                            it.copy(sampleDrawableRes = EffectFilterTransitionCatalog.safeDrawableRes(it.sampleDrawableRes))
+                        }
+                    )
+                }
             }
-        } catch (_: Exception) {
-            null
+        } catch (_: Throwable) {
+            // Fall through to metadata reconstruction
         }
+
+        val matchingSeed = EffectFilterTransitionCatalog.buildDefaultSeedProjects().find { it.id == entity.id }
+        if (matchingSeed != null) {
+            return matchingSeed.copy(
+                name = entity.name,
+                updatedAtMs = entity.updatedAtMs
+            )
+        }
+
+        val safeCover = EffectFilterTransitionCatalog.safeDrawableRes(entity.coverDrawableRes)
+        val aspect = AspectRatioMode.entries.find { it.label == entity.aspectRatioLabel } ?: AspectRatioMode.RATIO_16_9
+        val clipCount = entity.clipsCount.coerceAtLeast(1)
+        val clipDur = (entity.durationMs / clipCount).coerceAtLeast(3000L)
+        return VideoProject(
+            id = entity.id,
+            name = entity.name,
+            createdAtMs = entity.createdAtMs,
+            updatedAtMs = entity.updatedAtMs,
+            aspectRatio = aspect,
+            exportResolution = entity.exportResolution,
+            exportFps = entity.exportFps,
+            coverDrawableRes = safeCover,
+            primaryClips = (0 until clipCount).map { idx ->
+                TimelineClip(
+                    title = "${entity.name} Clip ${idx + 1}",
+                    sampleDrawableRes = safeCover,
+                    sourceDurationMs = clipDur,
+                    trimStartMs = 0L,
+                    trimEndMs = clipDur
+                )
+            }
+        )
     }
 }

@@ -1,6 +1,7 @@
 package com.example.model
 
 import com.example.R
+import com.squareup.moshi.JsonClass
 import java.util.UUID
 
 enum class AspectRatioMode(val label: String, val ratioWidth: Float, val ratioHeight: Float) {
@@ -21,6 +22,7 @@ enum class CanvasBackgroundType(val label: String) {
     GRADIENT("Gradient")
 }
 
+@JsonClass(generateAdapter = true)
 data class CanvasConfig(
     val type: CanvasBackgroundType = CanvasBackgroundType.SOLID_COLOR,
     val solidColorHex: Long = 0xFF06080CL,
@@ -58,6 +60,7 @@ enum class KeyframeProperty(
     EFFECT_INTENSITY("Effect Intensity", 0.8f, 0f, 1f)
 }
 
+@JsonClass(generateAdapter = true)
 data class Keyframe(
     val id: String = UUID.randomUUID().toString(),
     val timestampMs: Long, // Relative to clip start (0..clipEffectiveDurationMs)
@@ -66,11 +69,13 @@ data class Keyframe(
     val interpolation: KeyframeInterpolation = KeyframeInterpolation.EASE_IN_OUT
 )
 
+@JsonClass(generateAdapter = true)
 data class SpeedPoint(
     val positionFraction: Float, // 0.0f .. 1.0f across clip
     val speedMultiplier: Float   // 0.1f .. 10.0f
 )
 
+@JsonClass(generateAdapter = true)
 data class HslAdjustment(
     val bandName: String,
     val hueShift: Float = 0f,       // -180f..180f
@@ -78,11 +83,13 @@ data class HslAdjustment(
     val luminanceShift: Float = 0f   // -1f..1f
 )
 
+@JsonClass(generateAdapter = true)
 data class CurveControlPoint(
     val input: Float,  // 0f..1f
     val output: Float  // 0f..1f
 )
 
+@JsonClass(generateAdapter = true)
 data class ColorAdjustment(
     val brightness: Float = 0f,    // -1f..1f
     val contrast: Float = 0f,      // -1f..1f
@@ -142,6 +149,7 @@ enum class MaskType(val label: String) {
     HEART("Heart")
 }
 
+@JsonClass(generateAdapter = true)
 data class MaskConfig(
     val type: MaskType = MaskType.NONE,
     val centerX: Float = 0.5f,
@@ -166,6 +174,7 @@ enum class BlendModeType(val label: String) {
     ADD("Linear Dodge (Add)")
 }
 
+@JsonClass(generateAdapter = true)
 data class CutoutConfig(
     val autoCutoutEnabled: Boolean = false,
     val chromaKeyEnabled: Boolean = false,
@@ -178,6 +187,7 @@ data class CutoutConfig(
     val neonStrokeColorHex: Long = 0xFF00E5FFL
 )
 
+@JsonClass(generateAdapter = true)
 data class ClipAnimation(
     val inAnimId: String = "none",
     val inDurationMs: Long = 500L,
@@ -187,12 +197,14 @@ data class ClipAnimation(
     val loopCycleMs: Long = 1200L
 )
 
+@JsonClass(generateAdapter = true)
 data class TransitionConfig(
     val transitionId: String = "none",
     val durationMs: Long = 600L,
     val intensity: Float = 1f
 )
 
+@JsonClass(generateAdapter = true)
 data class TimelineClip(
     val id: String = UUID.randomUUID().toString(),
     val title: String,
@@ -245,6 +257,7 @@ enum class AudioCategory(val label: String) {
     VOICEOVER("Voiceover")
 }
 
+@JsonClass(generateAdapter = true)
 data class AudioClip(
     val id: String = UUID.randomUUID().toString(),
     val title: String,
@@ -264,12 +277,14 @@ data class AudioClip(
     val beatMarkersMs: List<Long> = listOf(500L, 1500L, 2500L, 3500L, 4500L, 5500L, 6500L, 7500L)
 )
 
+@JsonClass(generateAdapter = true)
 data class CaptionWordTiming(
     val word: String,
     val startOffsetMs: Long,
     val endOffsetMs: Long
 )
 
+@JsonClass(generateAdapter = true)
 data class TextClip(
     val id: String = UUID.randomUUID().toString(),
     val text: String,
@@ -304,6 +319,7 @@ data class TextClip(
     val keyframes: List<Keyframe> = emptyList()
 )
 
+@JsonClass(generateAdapter = true)
 data class EffectTrackItem(
     val id: String = UUID.randomUUID().toString(),
     val effectDefId: String,
@@ -318,6 +334,7 @@ data class EffectTrackItem(
     val keyframes: List<Keyframe> = emptyList()
 )
 
+@JsonClass(generateAdapter = true)
 data class StickerClip(
     val id: String = UUID.randomUUID().toString(),
     val stickerDefId: String,
@@ -335,6 +352,7 @@ data class StickerClip(
     val keyframes: List<Keyframe> = emptyList()
 )
 
+@JsonClass(generateAdapter = true)
 data class VideoProject(
     val id: String = UUID.randomUUID().toString(),
     val name: String,

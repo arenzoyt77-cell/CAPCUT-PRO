@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "NovaCut"
+rootProject.name = "CapCut"
 
 include(":app")

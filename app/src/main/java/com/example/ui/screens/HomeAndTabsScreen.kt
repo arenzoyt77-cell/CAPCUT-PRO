@@ -1,10 +1,14 @@
 package com.example.ui.screens
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,9 +45,7 @@ import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.DriveFileRenameOutline
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FileUpload
-import androidx.compose.material.icons.filled.FilterBAndW
 import androidx.compose.material.icons.filled.FolderSpecial
-import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.MarkEmailUnread
 import androidx.compose.material.icons.filled.MovieCreation
@@ -82,8 +84,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
@@ -97,6 +103,7 @@ import com.example.R
 import com.example.engine.EffectFilterTransitionCatalog
 import com.example.engine.VideoRenderEngine
 import com.example.model.VideoProject
+import com.example.ui.theme.AudioEmerald
 import com.example.ui.theme.CyanAccent
 import com.example.ui.theme.KeyframeCrimson
 import com.example.ui.theme.StudioBg
@@ -122,8 +129,10 @@ fun HomeAndTabsScreen(viewModel: NovaCutViewModel) {
     var renameInput by remember { mutableStateOf("") }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(StudioBg),
+        containerColor = StudioBg,
         topBar = {
             HomeTopBar(
                 onSearchClick = { viewModel.setGlobalSearchVisible(true) },
@@ -133,45 +142,57 @@ fun HomeAndTabsScreen(viewModel: NovaCutViewModel) {
             )
         },
         bottomBar = {
-            NavigationBar(
-                containerColor = StudioSurface,
-                tonalElevation = 8.dp,
-                modifier = Modifier.windowInsetsPadding(WindowInsets.navigationBars)
+            Surface(
+                color = Color(0xFF0B0E16),
+                tonalElevation = 0.dp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(width = 0.5.dp, color = Color(0xFF1D2536))
             ) {
-                HomeBottomTab.entries.forEach { tab ->
-                    val selected = activeTab == tab
-                    NavigationBarItem(
-                        selected = selected,
-                        onClick = { viewModel.selectHomeTab(tab) },
-                        modifier = Modifier.testTag("nav_tab_${tab.name.lowercase()}"),
-                        icon = {
-                            Icon(
-                                imageVector = when (tab) {
-                                    HomeBottomTab.EDIT -> Icons.Default.MovieCreation
-                                    HomeBottomTab.TEMPLATES -> Icons.Default.VideoLibrary
-                                    HomeBottomTab.AI_LAB -> Icons.Default.AutoAwesome
-                                    HomeBottomTab.PROJECTS -> Icons.Default.FolderSpecial
-                                    HomeBottomTab.INBOX -> Icons.Default.MarkEmailUnread
-                                    HomeBottomTab.ME -> Icons.Default.Person
-                                },
-                                contentDescription = tab.label
+                NavigationBar(
+                    containerColor = Color(0xFF0B0E16),
+                    tonalElevation = 0.dp,
+                    modifier = Modifier
+                        .windowInsetsPadding(WindowInsets.navigationBars)
+                        .height(64.dp)
+                ) {
+                    HomeBottomTab.entries.forEach { tab ->
+                        val selected = activeTab == tab
+                        NavigationBarItem(
+                            selected = selected,
+                            onClick = { viewModel.selectHomeTab(tab) },
+                            modifier = Modifier.testTag("nav_tab_${tab.name.lowercase()}"),
+                            icon = {
+                                Icon(
+                                    imageVector = when (tab) {
+                                        HomeBottomTab.EDIT -> Icons.Default.MovieCreation
+                                        HomeBottomTab.TEMPLATES -> Icons.Default.VideoLibrary
+                                        HomeBottomTab.AI_LAB -> Icons.Default.AutoAwesome
+                                        HomeBottomTab.PROJECTS -> Icons.Default.FolderSpecial
+                                        HomeBottomTab.INBOX -> Icons.Default.MarkEmailUnread
+                                        HomeBottomTab.ME -> Icons.Default.Person
+                                    },
+                                    contentDescription = tab.label,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            },
+                            label = {
+                                Text(
+                                    text = tab.label,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                                    maxLines = 1
+                                )
+                            },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = CyanAccent,
+                                selectedTextColor = CyanAccent,
+                                indicatorColor = CyanAccent.copy(alpha = 0.16f),
+                                unselectedIconColor = Color(0xFF6E788C),
+                                unselectedTextColor = Color(0xFF6E788C)
                             )
-                        },
-                        label = {
-                            Text(
-                                text = tab.label,
-                                style = MaterialTheme.typography.labelMedium,
-                                maxLines = 1
-                            )
-                        },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = StudioBg,
-                            selectedTextColor = CyanAccent,
-                            indicatorColor = CyanAccent,
-                            unselectedIconColor = TextSecondary,
-                            unselectedTextColor = TextSecondary
                         )
-                    )
+                    }
                 }
             }
         }
@@ -179,6 +200,15 @@ fun HomeAndTabsScreen(viewModel: NovaCutViewModel) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFF0C1322),
+                            StudioBg,
+                            Color(0xFF06080C)
+                        )
+                    )
+                )
                 .padding(innerPadding)
         ) {
             when (activeTab) {
@@ -269,48 +299,55 @@ private fun HomeTopBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(StudioBg)
+            .background(Color(0xFF080B11))
             .windowInsetsPadding(WindowInsets.statusBars)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
+            // CapCut Logo Icon in Top Header
             Box(
                 modifier = Modifier
                     .size(36.dp)
+                    .shadow(6.dp, RoundedCornerShape(10.dp), ambientColor = CyanAccent, spotColor = CyanAccent)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(
-                        Brush.linearGradient(
-                            listOf(CyanAccent, VioletAccent)
-                        )
+                    .background(Color.White)
+                    .border(
+                        width = 1.dp,
+                        brush = Brush.linearGradient(listOf(CyanAccent, VioletAccent)),
+                        shape = RoundedCornerShape(10.dp)
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.MovieCreation,
-                    contentDescription = "NovaCut Studio",
-                    tint = StudioBg,
-                    modifier = Modifier.size(22.dp)
+                Image(
+                    painter = painterResource(id = R.drawable.img_capcut_icon),
+                    contentDescription = "CapCut Logo",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
                 )
             }
             Spacer(modifier = Modifier.width(10.dp))
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "NovaCut",
+                        text = "CapCut",
                         style = MaterialTheme.typography.titleLarge,
-                        color = TextPrimary
+                        color = TextPrimary,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.testTag("home_brand_title")
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Surface(
                         color = CyanAccent.copy(alpha = 0.16f),
-                        shape = RoundedCornerShape(6.dp)
+                        shape = RoundedCornerShape(5.dp),
+                        modifier = Modifier.border(0.5.dp, CyanAccent.copy(alpha = 0.5f), RoundedCornerShape(5.dp))
                     ) {
                         Text(
                             text = "PRO",
                             style = MaterialTheme.typography.labelSmall,
                             color = CyanAccent,
+                            fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
@@ -323,47 +360,67 @@ private fun HomeTopBar(
             }
         }
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(
-                onClick = onQuickImportClick,
-                modifier = Modifier.testTag("home_import_button")
-            ) {
-                Icon(
-                    imageVector = Icons.Default.FileUpload,
-                    contentDescription = "Import media",
-                    tint = TextPrimary
-                )
-            }
-            IconButton(
-                onClick = onSearchClick,
-                modifier = Modifier.testTag("home_search_button")
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Global search",
-                    tint = TextPrimary
-                )
-            }
-            IconButton(
-                onClick = onCloudClick,
-                modifier = Modifier.testTag("home_cloud_button")
-            ) {
-                Icon(
-                    imageVector = Icons.Default.CloudDone,
-                    contentDescription = "Cloud Space",
-                    tint = CyanAccent
-                )
-            }
-            IconButton(
-                onClick = onProfileClick,
-                modifier = Modifier.testTag("home_profile_button")
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Workspace settings",
-                    tint = TextPrimary
-                )
-            }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            HeaderIconButton(
+                icon = Icons.Default.FileUpload,
+                contentDescription = "Import media",
+                tint = TextPrimary,
+                testTag = "home_import_button",
+                onClick = onQuickImportClick
+            )
+            HeaderIconButton(
+                icon = Icons.Default.Search,
+                contentDescription = "Global search",
+                tint = TextPrimary,
+                testTag = "home_search_button",
+                onClick = onSearchClick
+            )
+            HeaderIconButton(
+                icon = Icons.Default.CloudDone,
+                contentDescription = "Cloud Space",
+                tint = CyanAccent,
+                testTag = "home_cloud_button",
+                onClick = onCloudClick
+            )
+            HeaderIconButton(
+                icon = Icons.Default.Person,
+                contentDescription = "Workspace settings",
+                tint = TextPrimary,
+                testTag = "home_profile_button",
+                onClick = onProfileClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun HeaderIconButton(
+    icon: ImageVector,
+    contentDescription: String,
+    tint: Color,
+    testTag: String,
+    onClick: () -> Unit
+) {
+    Surface(
+        color = Color(0xFF121723),
+        shape = RoundedCornerShape(10.dp),
+        modifier = Modifier
+            .size(36.dp)
+            .border(1.dp, Color(0xFF1E2638), RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(10.dp))
+            .clickable(onClick = onClick)
+            .testTag(testTag)
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Icon(
+                imageVector = icon,
+                contentDescription = contentDescription,
+                tint = tint,
+                modifier = Modifier.size(18.dp)
+            )
         }
     }
 }
@@ -381,11 +438,15 @@ private fun HomeEditDashboard(
     onViewAllProjects: () -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 28.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .testTag("home_dashboard_list"),
+        contentPadding = PaddingValues(top = 6.dp, bottom = 28.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // 1. Hero Create Area ("New video" & "Edit photo")
+        // =====================================================================
+        // 1. HERO / CREATE SECTION (Dark Premium Hero Card)
+        // =====================================================================
         item {
             Column(
                 modifier = Modifier
@@ -393,31 +454,44 @@ private fun HomeEditDashboard(
                     .padding(horizontal = 16.dp)
             ) {
                 Card(
-                    shape = RoundedCornerShape(22.dp),
-                    colors = CardDefaults.cardColors(containerColor = StudioCard),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF0E131F)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .border(1.dp, StudioBorder, RoundedCornerShape(22.dp))
+                        .border(
+                            width = 1.dp,
+                            brush = Brush.linearGradient(
+                                colors = listOf(
+                                    CyanAccent.copy(alpha = 0.42f),
+                                    Color(0xFF1F293D),
+                                    VioletAccent.copy(alpha = 0.38f)
+                                )
+                            ),
+                            shape = RoundedCornerShape(20.dp)
+                        )
                 ) {
                     Box(modifier = Modifier.fillMaxWidth()) {
+                        // Subtle atmospheric studio lighting backdrop
                         Image(
                             painter = painterResource(id = R.drawable.img_hero_studio),
                             contentDescription = "Studio hero backdrop",
                             contentScale = ContentScale.Crop,
+                            alpha = 0.28f,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(206.dp)
+                                .height(168.dp)
                         )
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(206.dp)
+                                .height(168.dp)
                                 .background(
                                     Brush.verticalGradient(
                                         colors = listOf(
-                                            StudioBg.copy(alpha = 0.45f),
-                                            StudioBg.copy(alpha = 0.88f),
-                                            StudioBg
+                                            Color(0xFF0B1322).copy(alpha = 0.65f),
+                                            Color(0xFF0B101B).copy(alpha = 0.92f),
+                                            Color(0xFF0A0E17)
                                         )
                                     )
                                 )
@@ -426,16 +500,22 @@ private fun HomeEditDashboard(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(18.dp)
+                                .padding(14.dp)
                         ) {
+                            // Technical feature strip + Autosave Active status
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Surface(
-                                    color = StudioElevated.copy(alpha = 0.85f),
-                                    shape = RoundedCornerShape(8.dp)
+                                    color = Color(0xFF121B2C),
+                                    shape = RoundedCornerShape(6.dp),
+                                    modifier = Modifier.border(
+                                        0.5.dp,
+                                        CyanAccent.copy(alpha = 0.45f),
+                                        RoundedCornerShape(6.dp)
+                                    )
                                 ) {
                                     Text(
                                         text = "KEYFRAMES • CURVES • 4K HDR",
@@ -444,113 +524,49 @@ private fun HomeEditDashboard(
                                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                                     )
                                 }
-                                Text(
-                                    text = "Autosave Active",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = TextSecondary
-                                )
+
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(6.dp)
+                                            .clip(CircleShape)
+                                            .background(AudioEmerald)
+                                    )
+                                    Spacer(modifier = Modifier.width(5.dp))
+                                    Text(
+                                        text = "Autosave Active",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = TextSecondary
+                                    )
+                                }
                             }
 
-                            Spacer(modifier = Modifier.height(18.dp))
+                            Spacer(modifier = Modifier.height(12.dp))
 
+                            // Main Dark Action Cards: New video (Primary Highlighted) & Edit photo
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
-                                // Main CTA: New video
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1.65f)
-                                        .height(112.dp)
-                                        .clip(RoundedCornerShape(18.dp))
-                                        .background(
-                                            Brush.linearGradient(
-                                                colors = listOf(CyanAccent, Color(0xFF0091EA), VioletAccent)
-                                            )
-                                        )
-                                        .clickable(onClick = onNewVideo)
-                                        .testTag("cta_new_video")
-                                        .padding(16.dp)
-                                ) {
-                                    Column(
-                                        modifier = Modifier.fillMaxSize(),
-                                        verticalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Surface(
-                                            color = StudioBg.copy(alpha = 0.24f),
-                                            shape = CircleShape,
-                                            modifier = Modifier.size(38.dp)
-                                        ) {
-                                            Box(contentAlignment = Alignment.Center) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Add,
-                                                    contentDescription = "New video",
-                                                    tint = Color.White,
-                                                    modifier = Modifier.size(24.dp)
-                                                )
-                                            }
-                                        }
-                                        Column {
-                                            Text(
-                                                text = "New video",
-                                                style = MaterialTheme.typography.titleLarge,
-                                                color = StudioBg,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                            Text(
-                                                text = "Multi-track timeline & effects",
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = StudioBg.copy(alpha = 0.82f)
-                                            )
-                                        }
-                                    }
-                                }
+                                HeroActionCard(
+                                    title = "New video",
+                                    subtitle = "Multi-track timeline & effects",
+                                    icon = Icons.Default.Add,
+                                    isPrimary = true,
+                                    testTag = "cta_new_video",
+                                    onClick = onNewVideo,
+                                    modifier = Modifier.weight(1.55f)
+                                )
 
-                                // Secondary CTA: Edit photo
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .height(112.dp)
-                                        .clip(RoundedCornerShape(18.dp))
-                                        .background(StudioElevated.copy(alpha = 0.92f))
-                                        .border(1.dp, StudioBorder, RoundedCornerShape(18.dp))
-                                        .clickable(onClick = onEditPhoto)
-                                        .testTag("cta_edit_photo")
-                                        .padding(14.dp)
-                                ) {
-                                    Column(
-                                        modifier = Modifier.fillMaxSize(),
-                                        verticalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Surface(
-                                            color = VioletAccent.copy(alpha = 0.22f),
-                                            shape = CircleShape,
-                                            modifier = Modifier.size(36.dp)
-                                        ) {
-                                            Box(contentAlignment = Alignment.Center) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Image,
-                                                    contentDescription = "Edit photo",
-                                                    tint = Color(0xFFD1C4E9),
-                                                    modifier = Modifier.size(20.dp)
-                                                )
-                                            }
-                                        }
-                                        Column {
-                                            Text(
-                                                text = "Edit photo",
-                                                style = MaterialTheme.typography.titleMedium,
-                                                color = TextPrimary,
-                                                fontWeight = FontWeight.SemiBold
-                                            )
-                                            Text(
-                                                text = "RAW & HSL grade",
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = TextSecondary
-                                            )
-                                        }
-                                    }
-                                }
+                                HeroActionCard(
+                                    title = "Edit photo",
+                                    subtitle = "RAW & HSL grade",
+                                    icon = Icons.Default.Image,
+                                    isPrimary = false,
+                                    testTag = "cta_edit_photo",
+                                    onClick = onEditPhoto,
+                                    modifier = Modifier.weight(1f)
+                                )
                             }
                         }
                     }
@@ -558,7 +574,9 @@ private fun HomeEditDashboard(
             }
         }
 
-        // 2. Tool Shortcuts Grid (All 9 functional!)
+        // =====================================================================
+        // 2. STUDIO TOOLKIT (3x3 Compact Premium Dark Grid)
+        // =====================================================================
         item {
             Column(
                 modifier = Modifier
@@ -569,65 +587,34 @@ private fun HomeEditDashboard(
                     text = "Studio Toolkit",
                     style = MaterialTheme.typography.titleMedium,
                     color = TextPrimary,
-                    modifier = Modifier.padding(bottom = 10.dp)
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
 
                 val shortcuts = listOf(
                     ShortcutToolItem("autocut", "AutoCut", Icons.Default.AutoAwesome, CyanAccent),
                     ShortcutToolItem("retouch", "Retouch", Icons.Default.AutoFixHigh, Color(0xFFFF80AB)),
-                    ShortcutToolItem("photo_tools", "Photo tools", Icons.Default.Image, Color(0xFFFFB300)),
-                    ShortcutToolItem("shoot_record", "Shoot & record", Icons.Default.PhotoCamera, KeyframeCrimson),
-                    ShortcutToolItem("auto_enhance", "Auto enhance", Icons.Default.Tune, Color(0xFF00E676)),
-                    ShortcutToolItem("cover_maker", "Cover maker", Icons.Default.Wallpaper, Color(0xFFB388FF)),
-                    ShortcutToolItem("auto_captions", "Auto captions", Icons.Default.ClosedCaption, Color(0xFF40C4FF)),
-                    ShortcutToolItem("remove_bg", "Remove BG", Icons.Default.ContentCut, Color(0xFF1DE9B6)),
-                    ShortcutToolItem("cloud_space", "Cloud/Space", Icons.Default.CloudDone, VioletAccent)
+                    ShortcutToolItem("photo_tools", "Photo Tools", Icons.Default.Image, Color(0xFFFFB300)),
+                    ShortcutToolItem("shoot_record", "Shoot and Record", Icons.Default.PhotoCamera, KeyframeCrimson),
+                    ShortcutToolItem("auto_enhance", "Auto Enhance", Icons.Default.Tune, Color(0xFF00E676)),
+                    ShortcutToolItem("cover_maker", "Cover Maker", Icons.Default.Wallpaper, Color(0xFFB388FF)),
+                    ShortcutToolItem("auto_captions", "Auto Captions", Icons.Default.ClosedCaption, Color(0xFF40C4FF)),
+                    ShortcutToolItem("remove_bg", "Remove Background", Icons.Default.ContentCut, Color(0xFF1DE9B6)),
+                    ShortcutToolItem("cloud_space", "Cloud / Space", Icons.Default.CloudDone, VioletAccent)
                 )
 
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     shortcuts.chunked(3).forEach { rowTools ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             rowTools.forEach { tool ->
-                                Surface(
-                                    color = StudioCard,
-                                    shape = RoundedCornerShape(14.dp),
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .border(1.dp, StudioBorder, RoundedCornerShape(14.dp))
-                                        .clickable { onLaunchTool(tool.id) }
-                                        .testTag("shortcut_${tool.id}")
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 12.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(32.dp)
-                                                .clip(RoundedCornerShape(9.dp))
-                                                .background(tool.tint.copy(alpha = 0.16f)),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Icon(
-                                                imageVector = tool.icon,
-                                                contentDescription = tool.label,
-                                                tint = tool.tint,
-                                                modifier = Modifier.size(18.dp)
-                                            )
-                                        }
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(
-                                            text = tool.label,
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = TextPrimary,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
-                                }
+                                StudioToolkitCompactButton(
+                                    tool = tool,
+                                    onClick = { onLaunchTool(tool.id) },
+                                    modifier = Modifier.weight(1f)
+                                )
                             }
                         }
                     }
@@ -635,7 +622,9 @@ private fun HomeEditDashboard(
             }
         }
 
-        // 3. Recent Projects Horizontal Carousel
+        // =====================================================================
+        // 3. RECENT PROJECTS CAROUSEL
+        // =====================================================================
         item {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
@@ -648,12 +637,23 @@ private fun HomeEditDashboard(
                     Text(
                         text = "Recent projects (${projects.size})",
                         style = MaterialTheme.typography.titleMedium,
-                        color = TextPrimary
+                        color = TextPrimary,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.testTag("recent_projects_header")
                     )
-                    TextButton(onClick = onViewAllProjects) {
-                        Text("Manage All →", color = CyanAccent, style = MaterialTheme.typography.labelLarge)
+                    TextButton(
+                        onClick = onViewAllProjects,
+                        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = "Manage All →",
+                            color = CyanAccent,
+                            style = MaterialTheme.typography.labelLarge
+                        )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(4.dp))
 
                 LazyRow(
                     contentPadding = PaddingValues(horizontal = 16.dp),
@@ -669,17 +669,34 @@ private fun HomeEditDashboard(
             }
         }
 
-        // 4. Continue Editing Detailed Draft List
+        // =====================================================================
+        // 4. CONTINUE EDITING (Featured Most Recently Edited Project Card)
+        // =====================================================================
         item {
             Text(
                 text = "Continue editing",
                 style = MaterialTheme.typography.titleMedium,
                 color = TextPrimary,
+                fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
         }
 
-        items(projects, key = { "row_${it.id}" }) { proj ->
+        projects.firstOrNull()?.let { latestProject ->
+            item(key = "featured_continue_${latestProject.id}") {
+                FeaturedContinueEditingCard(
+                    project = latestProject,
+                    onContinue = { onOpenProject(latestProject) },
+                    onRename = { onRenameProject(latestProject) },
+                    onDuplicate = { onDuplicateProject(latestProject) },
+                    onDelete = { onDeleteProject(latestProject) },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+        }
+
+        val additionalProjects = projects.drop(1)
+        items(additionalProjects, key = { "row_${it.id}" }) { proj ->
             ProjectDetailRowCard(
                 project = proj,
                 onOpen = { onOpenProject(proj) },
@@ -692,6 +709,156 @@ private fun HomeEditDashboard(
     }
 }
 
+@Composable
+private fun HeroActionCard(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    isPrimary: Boolean,
+    testTag: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.96f else 1f,
+        animationSpec = tween(durationMillis = 110),
+        label = "heroCardScale"
+    )
+
+    val backgroundBrush = if (isPrimary) {
+        Brush.linearGradient(
+            colors = listOf(
+                Color(0xFF0D283A),
+                Color(0xFF132038),
+                Color(0xFF1E1738)
+            )
+        )
+    } else {
+        Brush.linearGradient(
+            colors = listOf(
+                Color(0xFF151B29),
+                Color(0xFF101520)
+            )
+        )
+    }
+
+    val borderBrush = if (isPrimary) {
+        Brush.linearGradient(
+            colors = listOf(
+                CyanAccent,
+                Color(0xFF2979FF),
+                VioletAccent
+            )
+        )
+    } else {
+        Brush.linearGradient(
+            colors = listOf(
+                Color(0xFF27324A),
+                Color(0xFF1D2536)
+            )
+        )
+    }
+
+    Box(
+        modifier = modifier
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .height(98.dp)
+            .shadow(
+                elevation = if (isPrimary) 10.dp else 4.dp,
+                shape = RoundedCornerShape(16.dp),
+                ambientColor = if (isPrimary) CyanAccent else Color.Black,
+                spotColor = if (isPrimary) CyanAccent else Color.Black
+            )
+            .clip(RoundedCornerShape(16.dp))
+            .background(backgroundBrush)
+            .border(
+                width = if (isPrimary) 1.5.dp else 1.dp,
+                brush = borderBrush,
+                shape = RoundedCornerShape(16.dp)
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
+            .testTag(testTag)
+            .padding(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(34.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(
+                            if (isPrimary) {
+                                Brush.linearGradient(listOf(CyanAccent, Color(0xFF0091EA)))
+                            } else {
+                                Brush.linearGradient(
+                                    listOf(
+                                        VioletAccent.copy(alpha = 0.28f),
+                                        CyanAccent.copy(alpha = 0.18f)
+                                    )
+                                )
+                            }
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = title,
+                        tint = if (isPrimary) StudioBg else Color(0xFFD6CEFF),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+                if (isPrimary) {
+                    Surface(
+                        color = CyanAccent.copy(alpha = 0.16f),
+                        shape = RoundedCornerShape(6.dp)
+                    ) {
+                        Text(
+                            text = "CREATE",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = CyanAccent,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
+
+            Column {
+                Text(
+                    text = title,
+                    style = if (isPrimary) MaterialTheme.typography.titleLarge else MaterialTheme.typography.titleMedium,
+                    color = TextPrimary,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
+                )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (isPrimary) Color(0xFFA8D8EA) else TextSecondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
 private data class ShortcutToolItem(
     val id: String,
     val label: String,
@@ -700,26 +867,113 @@ private data class ShortcutToolItem(
 )
 
 @Composable
+private fun StudioToolkitCompactButton(
+    tool: ShortcutToolItem,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.95f else 1f,
+        animationSpec = tween(durationMillis = 100),
+        label = "toolkitScale"
+    )
+
+    Surface(
+        color = Color(0xFF111622),
+        shape = RoundedCornerShape(12.dp),
+        modifier = modifier
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .height(48.dp)
+            .border(1.dp, Color(0xFF1D2536), RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
+            .testTag("shortcut_${tool.id}")
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 9.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(28.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(tool.tint.copy(alpha = 0.15f))
+                    .border(0.5.dp, tool.tint.copy(alpha = 0.35f), RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = tool.icon,
+                    contentDescription = tool.label,
+                    tint = tool.tint,
+                    modifier = Modifier.size(15.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(7.dp))
+            Text(
+                text = tool.label,
+                style = MaterialTheme.typography.labelMedium,
+                color = TextPrimary,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
 private fun RecentProjectCarouselCard(
     project: VideoProject,
     onClick: () -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.96f else 1f,
+        animationSpec = tween(durationMillis = 110),
+        label = "recentCardScale"
+    )
+
     val totalDurMs = VideoRenderEngine.computeProjectTotalDurationMs(project)
-    val coverRes = project.primaryClips.firstOrNull()?.sampleDrawableRes ?: project.coverDrawableRes
+    val coverRes = EffectFilterTransitionCatalog.safeDrawableRes(
+        project.primaryClips.firstOrNull()?.sampleDrawableRes ?: project.coverDrawableRes
+    )
+
     Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = StudioCard),
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF111622)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = Modifier
-            .width(168.dp)
-            .border(1.dp, StudioBorder, RoundedCornerShape(16.dp))
-            .clickable(onClick = onClick)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .width(164.dp)
+            .border(1.dp, Color(0xFF1E2638), RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(14.dp))
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
             .testTag("recent_project_${project.id}")
     ) {
         Column {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(104.dp)
+                    .height(94.dp)
             ) {
                 Image(
                     painter = painterResource(id = coverRes),
@@ -732,57 +986,251 @@ private fun RecentProjectCarouselCard(
                         .fillMaxSize()
                         .background(
                             Brush.verticalGradient(
-                                listOf(Color.Transparent, StudioBg.copy(alpha = 0.8f))
+                                listOf(Color.Transparent, StudioBg.copy(alpha = 0.84f))
                             )
                         )
                 )
+                // Duration badge bottom-right
                 Surface(
-                    color = StudioBg.copy(alpha = 0.78f),
-                    shape = RoundedCornerShape(6.dp),
+                    color = StudioBg.copy(alpha = 0.82f),
+                    shape = RoundedCornerShape(5.dp),
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(8.dp)
+                        .padding(6.dp)
                 ) {
                     Text(
                         text = NovaCutViewModel.formatShortDuration(totalDurMs),
                         style = MaterialTheme.typography.labelSmall,
                         color = TextPrimary,
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
                     )
                 }
+                // Play indicator top-left
                 Surface(
-                    color = CyanAccent.copy(alpha = 0.88f),
+                    color = CyanAccent.copy(alpha = 0.9f),
                     shape = CircleShape,
                     modifier = Modifier
                         .align(Alignment.TopStart)
-                        .padding(8.dp)
-                        .size(26.dp)
+                        .padding(7.dp)
+                        .size(24.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             imageVector = Icons.Default.PlayArrow,
-                            contentDescription = "Continue editing",
+                            contentDescription = "Play project",
                             tint = StudioBg,
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(15.dp)
                         )
                     }
                 }
             }
-            Column(modifier = Modifier.padding(10.dp)) {
+            Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 9.dp)) {
                 Text(
                     text = project.name,
                     style = MaterialTheme.typography.titleSmall,
                     color = TextPrimary,
+                    fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = "${project.aspectRatio.label} • ${project.exportResolution} • ${project.primaryClips.size} clips",
+                    text = "${project.aspectRatio.label} • ${project.exportResolution.uppercase()} • ${project.primaryClips.size} clips",
                     style = MaterialTheme.typography.bodySmall,
                     color = TextSecondary,
                     maxLines = 1
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FeaturedContinueEditingCard(
+    project: VideoProject,
+    onContinue: () -> Unit,
+    onRename: () -> Unit,
+    onDuplicate: () -> Unit,
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val totalDurMs = VideoRenderEngine.computeProjectTotalDurationMs(project)
+    val coverRes = EffectFilterTransitionCatalog.safeDrawableRes(
+        project.primaryClips.firstOrNull()?.sampleDrawableRes ?: project.coverDrawableRes
+    )
+
+    Surface(
+        color = Color(0xFF111724),
+        shape = RoundedCornerShape(16.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(CyanAccent.copy(alpha = 0.45f), Color(0xFF1F283B))
+                ),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onContinue)
+            .testTag("continue_editing_featured_card")
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(width = 104.dp, height = 74.dp)
+                        .clip(RoundedCornerShape(11.dp))
+                        .border(1.dp, Color(0xFF243048), RoundedCornerShape(11.dp))
+                ) {
+                    Image(
+                        painter = painterResource(id = coverRes),
+                        contentDescription = project.name,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(StudioBg.copy(alpha = 0.25f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Surface(
+                            color = StudioBg.copy(alpha = 0.75f),
+                            shape = CircleShape,
+                            modifier = Modifier.size(28.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Default.PlayArrow,
+                                    contentDescription = "Continue editing",
+                                    tint = CyanAccent,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
+                    }
+                    Surface(
+                        color = StudioBg.copy(alpha = 0.85f),
+                        shape = RoundedCornerShape(4.dp),
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(4.dp)
+                    ) {
+                        Text(
+                            text = NovaCutViewModel.formatShortDuration(totalDurMs),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = CyanAccent,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Surface(
+                            color = CyanAccent.copy(alpha = 0.15f),
+                            shape = RoundedCornerShape(4.dp)
+                        ) {
+                            Text(
+                                text = "LATEST DRAFT",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = CyanAccent,
+                                modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = project.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = TextPrimary,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = "${project.aspectRatio.label} • ${project.exportResolution.uppercase()} • ${project.primaryClips.size} clips",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextSecondary
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = "${project.exportFps}fps • ${project.effectItems.size} FX • ${project.textClips.size} Texts",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color(0xFF7F93B5)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Action row: Continue / Edit button + project options (Rename, Duplicate, Delete)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    IconButton(onClick = onRename, modifier = Modifier.size(34.dp)) {
+                        Icon(
+                            imageVector = Icons.Default.DriveFileRenameOutline,
+                            contentDescription = "Rename project",
+                            tint = TextSecondary,
+                            modifier = Modifier.size(17.dp)
+                        )
+                    }
+                    IconButton(onClick = onDuplicate, modifier = Modifier.size(34.dp)) {
+                        Icon(
+                            imageVector = Icons.Default.ContentCopy,
+                            contentDescription = "Duplicate project",
+                            tint = TextSecondary,
+                            modifier = Modifier.size(17.dp)
+                        )
+                    }
+                    IconButton(onClick = onDelete, modifier = Modifier.size(34.dp)) {
+                        Icon(
+                            imageVector = Icons.Default.DeleteOutline,
+                            contentDescription = "Delete project",
+                            tint = KeyframeCrimson,
+                            modifier = Modifier.size(17.dp)
+                        )
+                    }
+                }
+
+                Button(
+                    onClick = onContinue,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = CyanAccent,
+                        contentColor = StudioBg
+                    ),
+                    shape = RoundedCornerShape(10.dp),
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
+                    modifier = Modifier
+                        .height(34.dp)
+                        .testTag("continue_editing_button")
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Text(
+                        text = "Continue",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }
@@ -798,24 +1246,27 @@ private fun ProjectDetailRowCard(
     modifier: Modifier = Modifier
 ) {
     val totalDurMs = VideoRenderEngine.computeProjectTotalDurationMs(project)
-    val coverRes = project.primaryClips.firstOrNull()?.sampleDrawableRes ?: project.coverDrawableRes
+    val coverRes = EffectFilterTransitionCatalog.safeDrawableRes(
+        project.primaryClips.firstOrNull()?.sampleDrawableRes ?: project.coverDrawableRes
+    )
 
     Surface(
-        color = StudioCard,
-        shape = RoundedCornerShape(16.dp),
+        color = Color(0xFF111622),
+        shape = RoundedCornerShape(14.dp),
         modifier = modifier
             .fillMaxWidth()
-            .border(1.dp, StudioBorder, RoundedCornerShape(16.dp))
+            .border(1.dp, Color(0xFF1D2536), RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(14.dp))
             .clickable(onClick = onOpen)
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(width = 84.dp, height = 62.dp)
-                    .clip(RoundedCornerShape(10.dp))
+                    .size(width = 80.dp, height = 58.dp)
+                    .clip(RoundedCornerShape(9.dp))
             ) {
                 Image(
                     painter = painterResource(id = coverRes),
@@ -824,7 +1275,7 @@ private fun ProjectDetailRowCard(
                     modifier = Modifier.fillMaxSize()
                 )
                 Surface(
-                    color = StudioBg.copy(alpha = 0.8f),
+                    color = StudioBg.copy(alpha = 0.82f),
                     shape = RoundedCornerShape(4.dp),
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -849,9 +1300,9 @@ private fun ProjectDetailRowCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(3.dp))
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = "${project.aspectRatio.label} • ${project.exportResolution} ${project.exportFps}fps • ${project.primaryClips.size} clips",
+                    text = "${project.aspectRatio.label} • ${project.exportResolution.uppercase()} • ${project.primaryClips.size} clips",
                     style = MaterialTheme.typography.bodySmall,
                     color = TextSecondary
                 )
@@ -864,28 +1315,28 @@ private fun ProjectDetailRowCard(
             }
 
             Row {
-                IconButton(onClick = onRename, modifier = Modifier.size(36.dp)) {
+                IconButton(onClick = onRename, modifier = Modifier.size(34.dp)) {
                     Icon(
                         imageVector = Icons.Default.DriveFileRenameOutline,
                         contentDescription = "Rename project",
                         tint = TextSecondary,
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(17.dp)
                     )
                 }
-                IconButton(onClick = onDuplicate, modifier = Modifier.size(36.dp)) {
+                IconButton(onClick = onDuplicate, modifier = Modifier.size(34.dp)) {
                     Icon(
                         imageVector = Icons.Default.ContentCopy,
                         contentDescription = "Duplicate project",
                         tint = TextSecondary,
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(17.dp)
                     )
                 }
-                IconButton(onClick = onDelete, modifier = Modifier.size(36.dp)) {
+                IconButton(onClick = onDelete, modifier = Modifier.size(34.dp)) {
                     Icon(
                         imageVector = Icons.Default.DeleteOutline,
                         contentDescription = "Delete project",
                         tint = KeyframeCrimson,
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(17.dp)
                     )
                 }
             }
@@ -950,7 +1401,9 @@ private fun TemplatesBrowserTab(onUseTemplate: (String) -> Unit) {
                                 .height(148.dp)
                         ) {
                             Image(
-                                painter = painterResource(id = tpl.previewDrawableRes),
+                                painter = painterResource(
+                                    id = EffectFilterTransitionCatalog.safeDrawableRes(tpl.previewDrawableRes)
+                                ),
                                 contentDescription = tpl.title,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.fillMaxSize()
@@ -1049,13 +1502,13 @@ private fun AiLabStudioTab(onRunAiTool: (String) -> Unit) {
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "MODULAR AI LAB • OPTIONAL WORKFLOWS",
+                        text = "CAPCUT AI LAB • SMART WORKFLOWS",
                         style = MaterialTheme.typography.labelSmall,
                         color = CyanAccent
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Accelerate repetitive tasks with smart tools. The core NovaCut NLE editor operates 100% independently for full manual control.",
+                        text = "Accelerate editing with CapCut Auto Captions, Smart Cutout, Auto Reframe, and Velocity Restyle. The CapCut multi-track NLE editor gives you 100% manual control.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = TextPrimary
                     )
@@ -1136,7 +1589,7 @@ private fun ProjectsManagerTab(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("Local Project Database", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
+                    Text("CapCut Cloud & Local Projects", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
                     Text("${projects.size} saved timelines • Real-time SQLite Autosave", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
                 }
                 Button(
@@ -1182,7 +1635,7 @@ private fun InboxTab(viewModel: NovaCutViewModel) {
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            Text("Studio Inbox & Engine Releases", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
+            Text("CapCut Inbox & Creator Updates", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
         }
         items(notifications, key = { it.id }) { notif ->
             Surface(
@@ -1232,7 +1685,7 @@ private fun MeSettingsTab(viewModel: NovaCutViewModel) {
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            Text("Studio Engine & Preferences", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
+            Text("CapCut Pro Engine & Preferences", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
             Text("Configure hardware decoding, proxy preview & autosave", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
         }
 
@@ -1352,7 +1805,7 @@ fun GlobalSearchDialog(
         onDismissRequest = onDismiss,
         containerColor = StudioSurface,
         title = {
-            Text("Global Studio Search", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
+            Text("Search CapCut", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
         },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {

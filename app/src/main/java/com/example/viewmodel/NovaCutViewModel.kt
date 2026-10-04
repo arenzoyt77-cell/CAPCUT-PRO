@@ -119,11 +119,11 @@ class NovaCutViewModel(application: Application) : AndroidViewModel(application)
     private val _statusBannerMessage = MutableStateFlow<String?>(null)
     val statusBannerMessage: StateFlow<String?> = _statusBannerMessage.asStateFlow()
 
-    // Projects list from Room DB
+    // Projects list from Room DB (with immediate 5 starter projects on frame 0)
     val savedProjects: StateFlow<List<VideoProject>> = repository.allProjectsFlow.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptyList()
+        initialValue = EffectFilterTransitionCatalog.buildDefaultSeedProjects()
     )
 
     // Media Picker State
@@ -1847,31 +1847,31 @@ class NovaCutViewModel(application: Application) : AndroidViewModel(application)
         private fun defaultInboxNotifications(): List<StudioNotification> = listOf(
             StudioNotification(
                 id = "notif_1",
-                title = "60fps Keyframe Curve Engine Ready",
+                title = "CapCut 60fps Keyframe & Velocity Engine",
                 message = "Cubic Bezier & Smoothstep interpolation now available for Position, Scale, Rotation, Opacity, and Filter Intensity.",
-                category = "Engine Update",
+                category = "CapCut Update",
                 timestampLabel = "Just now",
                 isUnread = true
             ),
             StudioNotification(
                 id = "notif_2",
-                title = "New Anamorphic Cinema LUT Pack",
-                message = "16 filter categories including CineStill 800T, Portra 400, Teal & Orange, and Aerochrome IR are ready in Filters.",
-                category = "Creative Pack",
+                title = "New CapCut Viral Effects & Cinema Filters",
+                message = "Try Chromatic Blur, Halo Blur, Diamond Zoom, Black Flash, Edge Glow, 3D Zoom Pro, Teal & Orange, and Oppenheimer LUTs.",
+                category = "Effects & Filters",
                 timestampLabel = "2h ago",
                 isUnread = true
             ),
             StudioNotification(
                 id = "notif_3",
-                title = "Velocity Curve Presets Added",
-                message = "Try Montage, Hero Time, Jump Cut, and Flash In inside the Speed Curve editor.",
-                category = "Pro Tip",
+                title = "CapCut Velocity & AutoCut Templates",
+                message = "Explore 15 one-tap CapCut templates including Neon Velocity Beat Sync, Bass Shake Montage, and Flash Cut Fashion Reel.",
+                category = "Templates",
                 timestampLabel = "Yesterday",
                 isUnread = false
             ),
             StudioNotification(
                 id = "notif_4",
-                title = "Local Autosave & Draft Protection",
+                title = "CapCut Cloud & Local SQLite Autosave",
                 message = "Every timeline cut, keyframe, and color grade is automatically persisted to your local SQLite project database.",
                 category = "System",
                 timestampLabel = "2d ago",

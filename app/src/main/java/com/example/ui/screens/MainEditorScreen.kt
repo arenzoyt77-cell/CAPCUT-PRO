@@ -33,8 +33,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MergeType
 import androidx.compose.material.icons.automirrored.filled.Redo
 import androidx.compose.material.icons.automirrored.filled.Undo
+import androidx.compose.material.icons.automirrored.filled.VolumeOff
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Animation
 import androidx.compose.material.icons.filled.AspectRatio
@@ -59,7 +62,6 @@ import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.IosShare
 import androidx.compose.material.icons.filled.Layers
-import androidx.compose.material.icons.filled.MergeType
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Rotate90DegreesCcw
@@ -72,8 +74,6 @@ import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material.icons.filled.VolumeOff
-import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.material3.Button
@@ -720,7 +720,7 @@ private fun MultiTrackTimelineSection(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Icon(
-                            imageVector = if (project.isMainTrackMuted) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
+                            imageVector = if (project.isMainTrackMuted) Icons.AutoMirrored.Filled.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
                             contentDescription = "Mute main track",
                             tint = if (project.isMainTrackMuted) KeyframeCrimson else CyanAccent,
                             modifier = Modifier.size(15.dp)
@@ -776,7 +776,11 @@ private fun MultiTrackTimelineSection(
                                         val thumbCount = (clipWidthDp.value / 36f).toInt().coerceIn(1, 8)
                                         repeat(thumbCount) {
                                             Image(
-                                                painter = painterResource(id = clip.sampleDrawableRes),
+                                                painter = painterResource(
+                                                    id = com.example.engine.EffectFilterTransitionCatalog.safeDrawableRes(
+                                                        clip.sampleDrawableRes
+                                                    )
+                                                ),
                                                 contentDescription = null,
                                                 contentScale = ContentScale.Crop,
                                                 alpha = 0.65f,
@@ -1064,7 +1068,7 @@ private fun SelectedClipQuickActionStrip(viewModel: NovaCutViewModel) {
         Triple("Paste", Icons.Default.ContentPaste) { viewModel.pasteCopiedClip() },
         Triple("Move ◀", Icons.Default.SwapHoriz) { viewModel.moveSelectedClipOrder(false) },
         Triple("Move ▶", Icons.Default.SwapHoriz) { viewModel.moveSelectedClipOrder(true) },
-        Triple("Merge", Icons.Default.MergeType) { viewModel.mergeSelectedWithNextClip() },
+        Triple("Merge", Icons.AutoMirrored.Filled.MergeType) { viewModel.mergeSelectedWithNextClip() },
         Triple("Freeze", Icons.Default.History) { viewModel.freezeFrameAtPlayhead() },
         Triple("Reverse", Icons.Default.SlowMotionVideo) { viewModel.toggleReverseSelectedClip() },
         Triple("Rotate 90°", Icons.Default.Rotate90DegreesCcw) { viewModel.rotateSelectedClip90() },

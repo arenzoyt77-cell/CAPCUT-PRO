@@ -21,9 +21,16 @@ data class ProjectEntity(
     val durationMs: Long,
     val aspectRatioLabel: String,
     val exportResolution: String,
+    val exportFps: Int = 30,
     val coverDrawableRes: Int,
+    val thumbnailUri: String = "",
     val clipsCount: Int,
+    val effectsCount: Int = 0,
+    val keyframesCount: Int = 0,
+    val fileSizeEstimateMb: Float = 4.0f,
+    val isDraft: Boolean = true,
     val isRecoveredDraft: Boolean = false,
+    val lastPlayheadMs: Long = 0L,
     val projectJson: String
 )
 
@@ -32,14 +39,23 @@ interface ProjectDao {
     @Query("SELECT * FROM projects ORDER BY updatedAtMs DESC")
     fun observeAllProjects(): Flow<List<ProjectEntity>>
 
+    @Query("SELECT * FROM projects WHERE isDraft = 1 ORDER BY updatedAtMs DESC LIMIT :limit")
+    fun observeRecentDrafts(limit: Int): Flow<List<ProjectEntity>>
+
     @Query("SELECT * FROM projects ORDER BY updatedAtMs DESC")
     suspend fun getAllProjectsOnce(): List<ProjectEntity>
 
     @Query("SELECT * FROM projects WHERE id = :id LIMIT 1")
     suspend fun getProjectById(id: String): ProjectEntity?
 
+    @Query("SELECT * FROM projects WHERE isDraft = 1 ORDER BY updatedAtMs DESC LIMIT 1")
+    suspend fun getLatestDraft(): ProjectEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertProject(entity: ProjectEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertAllProjects(entities: List<ProjectEntity>)
 
     @Query("DELETE FROM projects WHERE id = :id")
     suspend fun deleteProjectById(id: String)
@@ -48,7 +64,7 @@ interface ProjectDao {
     suspend fun renameProject(id: String, newName: String, updatedAtMs: Long)
 }
 
-@Database(entities = [ProjectEntity::class], version = 1, exportSchema = false)
+@Database(entities = [ProjectEntity::class], version = 5, exportSchema = false)
 abstract class ProjectDatabase : RoomDatabase() {
     abstract fun projectDao(): ProjectDao
 

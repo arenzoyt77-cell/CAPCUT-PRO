@@ -126,153 +126,153 @@ data class GlobalSearchResult(
 object EffectFilterTransitionCatalog {
 
     val filterCategories = listOf(
-        "Basic", "Portrait", "Cinema", "Retro", "Vintage", "B&W",
-        "Food", "Nature", "Night", "Warm", "Cool", "Moody",
-        "Film", "HDR", "Social", "Creative"
+        "Featured", "Life", "Movies", "Retro", "Vintage", "B&W",
+        "Food", "Nature", "Night Scene", "Warm", "Cool", "Moody",
+        "Film", "HDR", "Social", "Style"
     )
 
     val filters: List<FilterDefinition> = listOf(
-        // Basic
-        FilterDefinition("natural_boost", "Natural Boost", "Basic", contrast = 0.12f, saturation = 0.18f, brightness = 0.04f, accentHex = 0xFF00E5FFL),
-        FilterDefinition("vivid_pop", "Vivid Pop", "Basic", contrast = 0.22f, saturation = 0.38f, brightness = 0.05f, accentHex = 0xFF00E676L),
-        FilterDefinition("crisp_clean", "Crisp Clean", "Basic", contrast = 0.18f, saturation = 0.08f, temperature = -0.08f, accentHex = 0xFF40C4FFL),
-        // Portrait
-        FilterDefinition("velvet_skin", "Velvet Skin", "Portrait", contrast = -0.06f, saturation = 0.10f, brightness = 0.08f, temperature = 0.14f, fade = 0.08f, accentHex = 0xFFFF80ABL),
-        FilterDefinition("peach_glow", "Peach Glow", "Portrait", saturation = 0.16f, brightness = 0.07f, temperature = 0.22f, tint = 0.15f, rScale = 1.08f, accentHex = 0xFFFFAB91L),
-        FilterDefinition("studio_soft", "Studio Soft", "Portrait", contrast = 0.08f, saturation = -0.08f, brightness = 0.06f, fade = 0.12f, accentHex = 0xFFF48FB1L),
-        // Cinema
-        FilterDefinition("teal_orange", "Teal & Orange", "Cinema", contrast = 0.28f, saturation = 0.20f, temperature = -0.15f, rScale = 1.12f, gScale = 1.02f, bScale = 1.14f, vignette = 0.28f, accentHex = 0xFF00BFA5L),
-        FilterDefinition("anamorphic_gold", "Anamorphic Gold", "Cinema", contrast = 0.24f, saturation = 0.14f, temperature = 0.32f, rScale = 1.14f, gScale = 1.06f, bScale = 0.88f, vignette = 0.22f, accentHex = 0xFFFFD54FL),
-        FilterDefinition("imax_noir", "Blockbuster Steel", "Cinema", contrast = 0.34f, saturation = -0.22f, temperature = -0.26f, bScale = 1.15f, vignette = 0.35f, accentHex = 0xFF546E7AL),
+        // Featured / Basic
+        FilterDefinition("natural_boost", "Clear", "Featured", contrast = 0.12f, saturation = 0.18f, brightness = 0.04f, accentHex = 0xFF00E5FFL),
+        FilterDefinition("vivid_pop", "Vivid", "Featured", contrast = 0.22f, saturation = 0.38f, brightness = 0.05f, accentHex = 0xFF00E676L),
+        FilterDefinition("crisp_clean", "Cold Brew", "Featured", contrast = 0.18f, saturation = 0.08f, temperature = -0.08f, accentHex = 0xFF40C4FFL),
+        // Life / Portrait
+        FilterDefinition("velvet_skin", "Velvet Skin", "Life", contrast = -0.06f, saturation = 0.10f, brightness = 0.08f, temperature = 0.14f, fade = 0.08f, accentHex = 0xFFFF80ABL),
+        FilterDefinition("peach_glow", "Peach", "Life", saturation = 0.16f, brightness = 0.07f, temperature = 0.22f, tint = 0.15f, rScale = 1.08f, accentHex = 0xFFFFAB91L),
+        FilterDefinition("studio_soft", "Creamy", "Life", contrast = 0.08f, saturation = -0.08f, brightness = 0.06f, fade = 0.12f, accentHex = 0xFFF48FB1L),
+        // Movies / Cinema
+        FilterDefinition("teal_orange", "Teal & Orange", "Movies", contrast = 0.28f, saturation = 0.20f, temperature = -0.15f, rScale = 1.12f, gScale = 1.02f, bScale = 1.14f, vignette = 0.28f, accentHex = 0xFF00BFA5L),
+        FilterDefinition("anamorphic_gold", "Oppenheimer", "Movies", contrast = 0.24f, saturation = 0.14f, temperature = 0.32f, rScale = 1.14f, gScale = 1.06f, bScale = 0.88f, vignette = 0.22f, accentHex = 0xFFFFD54FL),
+        FilterDefinition("imax_noir", "Gotham Steel", "Movies", contrast = 0.34f, saturation = -0.22f, temperature = -0.26f, bScale = 1.15f, vignette = 0.35f, accentHex = 0xFF546E7AL),
         // Retro
-        FilterDefinition("retro_80s", "1984 Synth", "Retro", contrast = 0.15f, saturation = 0.28f, tint = 0.28f, fade = 0.22f, rScale = 1.10f, bScale = 1.16f, accentHex = 0xFFE040FBL),
-        FilterDefinition("polaroid_fade", "Instant Fade", "Retro", contrast = -0.10f, saturation = -0.14f, temperature = 0.24f, fade = 0.30f, rScale = 1.08f, gScale = 1.04f, bScale = 0.90f, accentHex = 0xFFFFCC80L),
-        FilterDefinition("vhs_amber", "Cassette Warmth", "Retro", contrast = 0.12f, saturation = -0.18f, temperature = 0.36f, fade = 0.24f, accentHex = 0xFFFF8A65L),
+        FilterDefinition("retro_80s", "1980s", "Retro", contrast = 0.15f, saturation = 0.28f, tint = 0.28f, fade = 0.22f, rScale = 1.10f, bScale = 1.16f, accentHex = 0xFFE040FBL),
+        FilterDefinition("polaroid_fade", "Miami", "Retro", contrast = -0.10f, saturation = -0.14f, temperature = 0.24f, fade = 0.30f, rScale = 1.08f, gScale = 1.04f, bScale = 0.90f, accentHex = 0xFFFFCC80L),
+        FilterDefinition("vhs_amber", "VHS", "Retro", contrast = 0.12f, saturation = -0.18f, temperature = 0.36f, fade = 0.24f, accentHex = 0xFFFF8A65L),
         // Vintage
-        FilterDefinition("sepia_heirloom", "Heirloom Sepia", "Vintage", contrast = 0.14f, saturation = -0.55f, temperature = 0.45f, rScale = 1.18f, gScale = 1.04f, bScale = 0.82f, vignette = 0.30f, accentHex = 0xFFA1887FL),
-        FilterDefinition("aged_kodachrome", "Kodak 64", "Vintage", contrast = 0.26f, saturation = 0.18f, temperature = 0.20f, rScale = 1.12f, gScale = 0.98f, bScale = 0.88f, accentHex = 0xFFD4E157L),
-        FilterDefinition("dusty_vinyl", "Dusty Vinyl", "Vintage", contrast = -0.08f, saturation = -0.28f, fade = 0.34f, vignette = 0.25f, accentHex = 0xFF8D6E63L),
+        FilterDefinition("sepia_heirloom", "Carmel", "Vintage", contrast = 0.14f, saturation = -0.55f, temperature = 0.45f, rScale = 1.18f, gScale = 1.04f, bScale = 0.82f, vignette = 0.30f, accentHex = 0xFFA1887FL),
+        FilterDefinition("aged_kodachrome", "Kodak Gold", "Vintage", contrast = 0.26f, saturation = 0.18f, temperature = 0.20f, rScale = 1.12f, gScale = 0.98f, bScale = 0.88f, accentHex = 0xFFD4E157L),
+        FilterDefinition("dusty_vinyl", "Vintage 1970", "Vintage", contrast = -0.08f, saturation = -0.28f, fade = 0.34f, vignette = 0.25f, accentHex = 0xFF8D6E63L),
         // B&W
-        FilterDefinition("silver_nitrate", "Silver Nitrate", "B&W", contrast = 0.36f, saturation = -1.0f, brightness = 0.02f, vignette = 0.25f, accentHex = 0xFFCFD8DCL),
-        FilterDefinition("noir_shadow", "High Contrast Noir", "B&W", contrast = 0.55f, saturation = -1.0f, brightness = -0.06f, vignette = 0.42f, accentHex = 0xFF90A4AEL),
-        FilterDefinition("matte_mono", "Matte Mono", "B&W", contrast = 0.10f, saturation = -1.0f, fade = 0.28f, accentHex = 0xFFB0BEC5L),
+        FilterDefinition("silver_nitrate", "Mono Classic", "B&W", contrast = 0.36f, saturation = -1.0f, brightness = 0.02f, vignette = 0.25f, accentHex = 0xFFCFD8DCL),
+        FilterDefinition("noir_shadow", "Noir B&W", "B&W", contrast = 0.55f, saturation = -1.0f, brightness = -0.06f, vignette = 0.42f, accentHex = 0xFF90A4AEL),
+        FilterDefinition("matte_mono", "Fade B&W", "B&W", contrast = 0.10f, saturation = -1.0f, fade = 0.28f, accentHex = 0xFFB0BEC5L),
         // Food
-        FilterDefinition("gourmet_warm", "Bistro Warm", "Food", contrast = 0.20f, saturation = 0.36f, temperature = 0.28f, rScale = 1.12f, gScale = 1.05f, accentHex = 0xFFFF7043L),
-        FilterDefinition("fresh_citrus", "Fresh Citrus", "Food", contrast = 0.16f, saturation = 0.42f, brightness = 0.07f, gScale = 1.10f, accentHex = 0xFFFFCA28L),
-        FilterDefinition("espresso_roast", "Espresso Rich", "Food", contrast = 0.28f, saturation = 0.12f, temperature = 0.22f, vignette = 0.20f, accentHex = 0xFF6D4C41L),
+        FilterDefinition("gourmet_warm", "Delicious", "Food", contrast = 0.20f, saturation = 0.36f, temperature = 0.28f, rScale = 1.12f, gScale = 1.05f, accentHex = 0xFFFF7043L),
+        FilterDefinition("fresh_citrus", "Sweetness", "Food", contrast = 0.16f, saturation = 0.42f, brightness = 0.07f, gScale = 1.10f, accentHex = 0xFFFFCA28L),
+        FilterDefinition("espresso_roast", "Latte", "Food", contrast = 0.28f, saturation = 0.12f, temperature = 0.22f, vignette = 0.20f, accentHex = 0xFF6D4C41L),
         // Nature
-        FilterDefinition("emerald_forest", "Emerald Canopy", "Nature", contrast = 0.18f, saturation = 0.26f, gScale = 1.15f, bScale = 1.04f, accentHex = 0xFF00C853L),
-        FilterDefinition("alpine_air", "Alpine Air", "Nature", contrast = 0.22f, saturation = 0.20f, temperature = -0.18f, bScale = 1.12f, accentHex = 0xFF00B0FFL),
-        FilterDefinition("autumn_foliage", "Autumn Gold", "Nature", contrast = 0.20f, saturation = 0.30f, temperature = 0.34f, rScale = 1.14f, accentHex = 0xFFFF6D00L),
-        // Night
-        FilterDefinition("cyber_neon", "Cyberpunk Night", "Night", contrast = 0.32f, saturation = 0.34f, temperature = -0.24f, tint = 0.28f, rScale = 1.08f, bScale = 1.22f, accentHex = 0xFF00E5FFL),
-        FilterDefinition("tokyo_midnight", "Tokyo Midnight", "Night", contrast = 0.28f, saturation = 0.22f, temperature = -0.32f, gScale = 1.06f, bScale = 1.20f, vignette = 0.28f, accentHex = 0xFF7C4DFFL),
-        FilterDefinition("tungsten_street", "Sodium Vapor", "Night", contrast = 0.26f, saturation = 0.18f, temperature = 0.38f, rScale = 1.16f, gScale = 1.06f, bScale = 0.84f, accentHex = 0xFFFFAB00L),
+        FilterDefinition("emerald_forest", "Green Orange", "Nature", contrast = 0.18f, saturation = 0.26f, gScale = 1.15f, bScale = 1.04f, accentHex = 0xFF00C853L),
+        FilterDefinition("alpine_air", "Sky Blue", "Nature", contrast = 0.22f, saturation = 0.20f, temperature = -0.18f, bScale = 1.12f, accentHex = 0xFF00B0FFL),
+        FilterDefinition("autumn_foliage", "Maple", "Nature", contrast = 0.20f, saturation = 0.30f, temperature = 0.34f, rScale = 1.14f, accentHex = 0xFFFF6D00L),
+        // Night Scene
+        FilterDefinition("cyber_neon", "Cyberpunk", "Night Scene", contrast = 0.32f, saturation = 0.34f, temperature = -0.24f, tint = 0.28f, rScale = 1.08f, bScale = 1.22f, accentHex = 0xFF00E5FFL),
+        FilterDefinition("tokyo_midnight", "Tokyo Night", "Night Scene", contrast = 0.28f, saturation = 0.22f, temperature = -0.32f, gScale = 1.06f, bScale = 1.20f, vignette = 0.28f, accentHex = 0xFF7C4DFFL),
+        FilterDefinition("tungsten_street", "Neon Street", "Night Scene", contrast = 0.26f, saturation = 0.18f, temperature = 0.38f, rScale = 1.16f, gScale = 1.06f, bScale = 0.84f, accentHex = 0xFFFFAB00L),
         // Warm
-        FilterDefinition("golden_hour", "Golden Hour", "Warm", contrast = 0.16f, saturation = 0.24f, temperature = 0.42f, rScale = 1.16f, gScale = 1.06f, bScale = 0.86f, accentHex = 0xFFFFB300L),
-        FilterDefinition("sahara_sun", "Sahara Sun", "Warm", contrast = 0.22f, saturation = 0.18f, temperature = 0.48f, brightness = 0.04f, accentHex = 0xFFFF8F00L),
-        FilterDefinition("amber_honey", "Amber Honey", "Warm", contrast = 0.12f, saturation = 0.20f, temperature = 0.30f, fade = 0.14f, accentHex = 0xFFFFC107L),
+        FilterDefinition("golden_hour", "Warm Sunset", "Warm", contrast = 0.16f, saturation = 0.24f, temperature = 0.42f, rScale = 1.16f, gScale = 1.06f, bScale = 0.86f, accentHex = 0xFFFFB300L),
+        FilterDefinition("sahara_sun", "Sunkissed", "Warm", contrast = 0.22f, saturation = 0.18f, temperature = 0.48f, brightness = 0.04f, accentHex = 0xFFFF8F00L),
+        FilterDefinition("amber_honey", "Honey", "Warm", contrast = 0.12f, saturation = 0.20f, temperature = 0.30f, fade = 0.14f, accentHex = 0xFFFFC107L),
         // Cool
-        FilterDefinition("arctic_blue", "Arctic Ice", "Cool", contrast = 0.20f, saturation = 0.10f, temperature = -0.42f, bScale = 1.20f, accentHex = 0xFF18FFFFL),
-        FilterDefinition("nordic_fjord", "Nordic Fjord", "Cool", contrast = 0.18f, saturation = -0.20f, temperature = -0.30f, gScale = 1.04f, bScale = 1.14f, accentHex = 0xFF4FC3F7L),
-        FilterDefinition("cobalt_glass", "Cobalt Glass", "Cool", contrast = 0.26f, saturation = 0.16f, temperature = -0.36f, bScale = 1.24f, accentHex = 0xFF2979FFL),
+        FilterDefinition("arctic_blue", "Iceberg", "Cool", contrast = 0.20f, saturation = 0.10f, temperature = -0.42f, bScale = 1.20f, accentHex = 0xFF18FFFFL),
+        FilterDefinition("nordic_fjord", "Glacier", "Cool", contrast = 0.18f, saturation = -0.20f, temperature = -0.30f, gScale = 1.04f, bScale = 1.14f, accentHex = 0xFF4FC3F7L),
+        FilterDefinition("cobalt_glass", "Sapphire", "Cool", contrast = 0.26f, saturation = 0.16f, temperature = -0.36f, bScale = 1.24f, accentHex = 0xFF2979FFL),
         // Moody
-        FilterDefinition("dark_emerald", "Moody Pine", "Moody", contrast = 0.24f, saturation = -0.28f, brightness = -0.06f, gScale = 1.05f, fade = 0.18f, vignette = 0.36f, accentHex = 0xFF26A69AL),
-        FilterDefinition("rainy_slate", "Rainy Slate", "Moody", contrast = 0.18f, saturation = -0.38f, temperature = -0.20f, fade = 0.22f, vignette = 0.32f, accentHex = 0xFF78909CL),
-        FilterDefinition("obsidian_fade", "Obsidian Ash", "Moody", contrast = 0.30f, saturation = -0.45f, brightness = -0.08f, fade = 0.24f, vignette = 0.40f, accentHex = 0xFF455A64L),
+        FilterDefinition("dark_emerald", "Dark Forest", "Moody", contrast = 0.24f, saturation = -0.28f, brightness = -0.06f, gScale = 1.05f, fade = 0.18f, vignette = 0.36f, accentHex = 0xFF26A69AL),
+        FilterDefinition("rainy_slate", "Rainday", "Moody", contrast = 0.18f, saturation = -0.38f, temperature = -0.20f, fade = 0.22f, vignette = 0.32f, accentHex = 0xFF78909CL),
+        FilterDefinition("obsidian_fade", "Shadow Matte", "Moody", contrast = 0.30f, saturation = -0.45f, brightness = -0.08f, fade = 0.24f, vignette = 0.40f, accentHex = 0xFF455A64L),
         // Film
-        FilterDefinition("portra_400", "Portra 400", "Film", contrast = 0.14f, saturation = 0.12f, temperature = 0.18f, fade = 0.12f, rScale = 1.06f, gScale = 1.03f, accentHex = 0xFFFFCC80L),
+        FilterDefinition("portra_400", "Fuji Pro", "Film", contrast = 0.14f, saturation = 0.12f, temperature = 0.18f, fade = 0.12f, rScale = 1.06f, gScale = 1.03f, accentHex = 0xFFFFCC80L),
         FilterDefinition("cinestill_800t", "CineStill 800T", "Film", contrast = 0.28f, saturation = 0.18f, temperature = -0.28f, tint = 0.12f, rScale = 1.06f, bScale = 1.18f, accentHex = 0xFF00E5FFL),
-        FilterDefinition("fuji_velvia", "Velvia 50", "Film", contrast = 0.32f, saturation = 0.44f, gScale = 1.08f, bScale = 1.08f, accentHex = 0xFF00E676L),
+        FilterDefinition("fuji_velvia", "Negative Film", "Film", contrast = 0.32f, saturation = 0.44f, gScale = 1.08f, bScale = 1.08f, accentHex = 0xFF00E676L),
         // HDR
         FilterDefinition("hdr_clarity", "HDR Clarity", "HDR", contrast = 0.42f, saturation = 0.28f, brightness = 0.03f, vignette = 0.15f, accentHex = 0xFF00E5FFL),
-        FilterDefinition("dynamic_range", "Ultra Dynamic", "HDR", contrast = 0.36f, saturation = 0.34f, temperature = 0.06f, accentHex = 0xFF7C4DFFL),
+        FilterDefinition("dynamic_range", "High Contrast", "HDR", contrast = 0.36f, saturation = 0.34f, temperature = 0.06f, accentHex = 0xFF7C4DFFL),
         // Social
-        FilterDefinition("aesthetic_cream", "Clean Cream", "Social", contrast = -0.04f, saturation = -0.10f, brightness = 0.08f, temperature = 0.16f, fade = 0.16f, accentHex = 0xFFFFE082L),
-        FilterDefinition("reel_punch", "Reel Punch", "Social", contrast = 0.26f, saturation = 0.32f, brightness = 0.04f, accentHex = 0xFFFF4081L),
-        // Creative
-        FilterDefinition("ultraviolet", "Ultraviolet Dream", "Creative", contrast = 0.24f, saturation = 0.30f, tint = 0.45f, rScale = 1.14f, gScale = 0.88f, bScale = 1.24f, accentHex = 0xFFD500F9L),
-        FilterDefinition("infrared_false", "Aerochrome IR", "Creative", contrast = 0.30f, saturation = 0.35f, rScale = 1.32f, gScale = 0.82f, bScale = 1.06f, accentHex = 0xFFFF1744L),
-        FilterDefinition("matrix_code", "Matrix Phosphor", "Creative", contrast = 0.34f, saturation = -0.20f, rScale = 0.78f, gScale = 1.28f, bScale = 0.84f, accentHex = 0xFF00E676L)
+        FilterDefinition("aesthetic_cream", "Brighten", "Social", contrast = -0.04f, saturation = -0.10f, brightness = 0.08f, temperature = 0.16f, fade = 0.16f, accentHex = 0xFFFFE082L),
+        FilterDefinition("reel_punch", "Viral Pop", "Social", contrast = 0.26f, saturation = 0.32f, brightness = 0.04f, accentHex = 0xFFFF4081L),
+        // Style
+        FilterDefinition("ultraviolet", "Purple Neon", "Style", contrast = 0.24f, saturation = 0.30f, tint = 0.45f, rScale = 1.14f, gScale = 0.88f, bScale = 1.24f, accentHex = 0xFFD500F9L),
+        FilterDefinition("infrared_false", "Red Punk", "Style", contrast = 0.30f, saturation = 0.35f, rScale = 1.32f, gScale = 0.82f, bScale = 1.06f, accentHex = 0xFFFF1744L),
+        FilterDefinition("matrix_code", "Matrix Green", "Style", contrast = 0.34f, saturation = -0.20f, rScale = 0.78f, gScale = 1.28f, bScale = 0.84f, accentHex = 0xFF00E676L)
     )
 
     val effectCategories = listOf(
-        "Trending", "Basic", "Lens", "Retro", "Glitch", "Distortion",
+        "Trending", "Nightclub", "Lens", "Retro", "Glitch", "Distortion",
         "Light", "Spark", "Particles", "Nature", "Comic", "3D",
-        "Motion", "Shake", "Blur", "Neon", "Dream", "Film",
+        "Split", "Shake", "Blur", "Neon", "Dream", "Film",
         "Noise", "Chromatic", "VHS", "RGB", "Cyber", "Energy", "Body"
     )
 
     val effects: List<EffectDefinition> = listOf(
-        EffectDefinition("chromatic_aberration", "Chromatic Split", "Trending", "Anamorphic red/cyan channel fringe at frame edges", "Fringe Spread", "Pulse Speed", "Edge Falloff", 0.80f, 0.50f, 0.65f, 0xFF00E5FFL),
-        EffectDefinition("halation_bloom", "Halation Glow", "Trending", "Warm cinema film highlight bloom and soft diffusion", "Glow Radius", "Threshold", "Warmth", 0.75f, 0.40f, 0.70f, 0xFFFF8A65L),
-        EffectDefinition("bass_impact_shake", "Bass Impact", "Trending", "Rhythmic camera punch zoom and directional shake", "Impact Force", "Frequency", "Zoom Amount", 0.85f, 0.75f, 0.60f, 0xFFFF3366L),
-        EffectDefinition("gaussian_blur", "Gaussian Blur", "Blur", "Smooth optical defocus across the frame", "Blur Radius", "Softness", "Mix", 0.65f, 0.30f, 0.50f, 0xFF64B5F6L),
-        EffectDefinition("motion_blur", "Directional Blur", "Blur", "High-velocity horizontal motion streak blur", "Streak Length", "Angle", "Mix", 0.75f, 0.60f, 0.50f, 0xFF4FC3F7L),
-        EffectDefinition("zoom_blur", "Zoom Warp Blur", "Blur", "Radial center-outward zoom streak bursts", "Burst Strength", "Center X", "Center Y", 0.80f, 0.50f, 0.50f, 0xFF29B6F6L),
-        EffectDefinition("radial_spin_blur", "Radial Spin", "Blur", "Rotational vortex blur around focal point", "Spin Angle", "Radius", "Smoothness", 0.70f, 0.65f, 0.50f, 0xFF00E5FFL),
-        EffectDefinition("cinema_vignette", "Cinema Vignette", "Basic", "Natural optical lens falloff darkening frame corners", "Darkness", "Roundness", "Feather", 0.75f, 0.50f, 0.60f, 0xFF90A4AEL),
-        EffectDefinition("edge_sharpen", "Crisp Sharpen", "Basic", "Micro-contrast unsharp mask detail enhancer", "Sharpness", "Radius", "Threshold", 0.70f, 0.40f, 0.50f, 0xFF81C784L),
-        EffectDefinition("fisheye_lens", "Fisheye 8mm", "Lens", "Wide-angle barrel distortion with curved horizon", "Curvature", "Zoom Trim", "Vignette", 0.80f, 0.50f, 0.60f, 0xFF4DB6ACL),
-        EffectDefinition("anamorphic_flare", "Anamorphic Flare", "Lens", "Horizontal sapphire streak lens flare across highlights", "Flare Brightness", "Sweep Speed", "Streak Width", 0.85f, 0.45f, 0.75f, 0xFF00B0FFL),
-        EffectDefinition("vhs_tape", "VHS 1992 Tape", "VHS", "Authentic magnetic tape tracking lines, timecode & color bleed", "Tracking Jitter", "Noise Level", "Color Bleed", 0.80f, 0.65f, 0.70f, 0xFFFFB74DL),
-        EffectDefinition("crt_scanlines", "CRT Monitor", "Retro", "Phosphor RGB aperture grill and rolling scanlines", "Line Density", "Roll Speed", "Curvature", 0.75f, 0.55f, 0.60f, 0xFFAED581L),
-        EffectDefinition("old_film_16mm", "16mm Projector", "Film", "Scratches, dust gate weave, and flickering projector bulb", "Scratch Density", "Flicker Rate", "Sepia Tone", 0.75f, 0.60f, 0.55f, 0xFFDCE775L),
-        EffectDefinition("film_grain_35mm", "35mm Film Grain", "Film", "Organic silver-halide celluloid grain texture", "Grain Size", "Roughness", "Luma Mix", 0.65f, 0.70f, 0.50f, 0xFFFFD54FL),
-        EffectDefinition("glitch_displacement", "Digital Glitch", "Glitch", "Horizontal RGB block slicing and datamosh tear", "Slice Amount", "Glitch Rate", "RGB Offset", 0.80f, 0.75f, 0.65f, 0xFFFF4081L),
-        EffectDefinition("rgb_split", "RGB Prism Split", "RGB", "Independent Red, Green, and Blue channel separation", "Separation", "Rotation", "Pulse", 0.80f, 0.60f, 0.50f, 0xFFE040FBL),
-        EffectDefinition("pixel_mosaic", "Mosaic Pixelate", "Distortion", "Retro 8-bit square pixelation grid", "Block Size", "Grid Contrast", "Mix", 0.70f, 0.40f, 0.50f, 0xFF7C4DFFL),
-        EffectDefinition("water_ripple", "Liquid Ripple", "Distortion", "Concentric refractive wave ripples across frame", "Wave Amplitude", "Ripple Speed", "Frequency", 0.75f, 0.65f, 0.60f, 0xFF00E5FFL),
-        EffectDefinition("sine_wave", "Heat Haze Wave", "Distortion", "Sinusoidal mirage distortion warp", "Warp Amount", "Wave Speed", "Wavelength", 0.70f, 0.60f, 0.55f, 0xFFFF8A65L),
-        EffectDefinition("warm_light_leak", "Solar Light Leak", "Light", "Organic amber and crimson film edge light burns", "Burn Intensity", "Drift Speed", "Warmth", 0.80f, 0.45f, 0.75f, 0xFFFFAB40L),
-        EffectDefinition("strobe_flash", "Strobe Flash", "Light", "High-energy club white/cyan rhythmic exposure flash", "Flash Peak", "Strobe BPM", "Decay", 0.75f, 0.80f, 0.50f, 0xFFFFFFFFL),
-        EffectDefinition("sparkle_bokeh", "Diamond Sparkles", "Spark", "Multi-point starlight glints on bright specular areas", "Star Size", "Twinkle Speed", "Density", 0.80f, 0.60f, 0.70f, 0xFFFFF176L),
-        EffectDefinition("starfield_particles", "Floating Embers", "Particles", "Glowing bokeh dust and rising firefly particles", "Particle Count", "Rise Speed", "Glow", 0.85f, 0.55f, 0.65f, 0xFFFFB300L),
-        EffectDefinition("rain_drops", "Cinema Rain", "Nature", "Diagonal atmospheric rain streaks with mist", "Rain Density", "Wind Angle", "Streak Length", 0.80f, 0.75f, 0.60f, 0xFF4FC3F7L),
-        EffectDefinition("snowfall", "Winter Snow", "Nature", "Soft layered foreground and background snowflakes", "Flake Count", "Fall Speed", "Swirl", 0.75f, 0.50f, 0.55f, 0xFFE1F5FEL),
-        EffectDefinition("comic_halftone", "Pop Art Halftone", "Comic", "CMYK Ben-Day dot matrix and bold ink contours", "Dot Scale", "Ink Weight", "Color Pop", 0.80f, 0.50f, 0.70f, 0xFFFF5252L),
-        EffectDefinition("perspective_3d", "3D Perspective Tilt", "3D", "Dynamic 3D card pitch/yaw floating camera rig", "Tilt Angle", "Orbit Speed", "Depth", 0.75f, 0.55f, 0.60f, 0xFF7C4DFFL),
-        EffectDefinition("quad_mirror", "Quad Mirror", "Motion", "4-way symmetrical kaleidoscope tile reflection", "Tile Split", "Slide Speed", "Zoom", 0.85f, 0.50f, 0.50f, 0xFF1DE9B6L),
-        EffectDefinition("kaleidoscope", "Kaleidoscope Prism", "Creative", "Multi-faceted hexagonal mirror prism rotation", "Facets", "Spin Speed", "Radius", 0.85f, 0.60f, 0.70f, 0xFFE040FBL),
-        EffectDefinition("handheld_shake", "Handheld Docu", "Shake", "Organic cinema verite camera operator motion", "Sway Amount", "Frequency", "Rotation", 0.65f, 0.50f, 0.45f, 0xFFFFCA28L),
-        EffectDefinition("neon_edge_aura", "Neon Edge Glow", "Neon", "Electric cyan and magenta laser contour glow", "Neon Brightness", "Pulse Speed", "Hue Shift", 0.85f, 0.65f, 0.75f, 0xFF00E5FFL),
-        EffectDefinition("dreamy_mist", "Dreamy Diffusion", "Dream", "Pro-Mist filter pastel highlight halo and soft contrast", "Mist Strength", "Bloom Size", "Pastel Tint", 0.75f, 0.40f, 0.65f, 0xFFF48FB1L),
-        EffectDefinition("digital_noise", "ISO 12800 Noise", "Noise", "High-frequency chroma and luminance sensor noise", "Noise Amount", "Chroma Mix", "Speed", 0.70f, 0.80f, 0.50f, 0xFFB0BEC5L),
-        EffectDefinition("chromatic_wave", "Chromatic Wave", "Chromatic", "Liquid rainbow prism dispersion wave", "Dispersion", "Wave Speed", "Angle", 0.80f, 0.60f, 0.65f, 0xFF00E5FFL),
-        EffectDefinition("cyber_hud", "Cyberpunk HUD", "Cyber", "Futuristic telemetry reticle, scan grid, and data readout", "HUD Opacity", "Scan Speed", "Grid Scale", 0.85f, 0.65f, 0.70f, 0xFF00E676L),
-        EffectDefinition("energy_aura", "Super Aura", "Energy", "High-voltage plasma arcs and radial shockwave rings", "Plasma Power", "Arc Speed", "Ring Scale", 0.85f, 0.75f, 0.70f, 0xFF00E5FFL),
-        EffectDefinition("body_neon_clone", "Subject Neon Rim", "Body", "Glowing dual-tone silhouette rim around subject", "Rim Width", "Pulse Speed", "Offset", 0.80f, 0.60f, 0.65f, 0xFFFF3366L),
-        EffectDefinition("hue_cycle", "Psychedelic Hue", "Retro", "Continuous 360-degree color wheel phase rotation", "Hue Shift", "Cycle Speed", "Saturation", 0.80f, 0.70f, 0.75f, 0xFFD500F9L),
-        EffectDefinition("thermal_vision", "Thermal Infrared", "Cyber", "False-color heat signature palette mapping", "Heat Contrast", "Palette Shift", "Glow", 0.85f, 0.50f, 0.65f, 0xFFFF6D00L)
+        EffectDefinition("chromatic_aberration", "Chromatic Blur", "Trending", "CapCut signature red/cyan chromatic split & edge fringe", "Range", "Speed", "Filter", 0.80f, 0.50f, 0.65f, 0xFF00E5FFL),
+        EffectDefinition("halation_bloom", "Halo Blur", "Trending", "CapCut viral dreamy opening halo blur & soft glow", "Intensity", "Speed", "Warmth", 0.75f, 0.40f, 0.70f, 0xFFFF8A65L),
+        EffectDefinition("bass_impact_shake", "Shake", "Trending", "CapCut beat-synced camera punch zoom and shake", "Strength", "Speed", "Zoom", 0.85f, 0.75f, 0.60f, 0xFFFF3366L),
+        EffectDefinition("gaussian_blur", "Oblique Blur", "Blur", "Smooth CapCut optical defocus across the frame", "Blur", "Horizontal", "Rotate", 0.65f, 0.30f, 0.50f, 0xFF64B5F6L),
+        EffectDefinition("motion_blur", "Motion Blur", "Blur", "High-velocity directional streak blur", "Blur", "Horizontal", "Mix", 0.75f, 0.60f, 0.50f, 0xFF4FC3F7L),
+        EffectDefinition("zoom_blur", "Diamond Zoom", "Trending", "CapCut radial zoom burst with specular glints", "Strength", "Horizontal", "Vertical", 0.80f, 0.50f, 0.50f, 0xFF29B6F6L),
+        EffectDefinition("radial_spin_blur", "Vortex Spin", "Nightclub", "Rotational vortex blur around focal point", "Spin", "Range", "Smooth", 0.70f, 0.65f, 0.50f, 0xFF00E5FFL),
+        EffectDefinition("cinema_vignette", "Vignette", "Lens", "Natural optical lens falloff darkening frame corners", "Texture", "Range", "Feather", 0.75f, 0.50f, 0.60f, 0xFF90A4AEL),
+        EffectDefinition("edge_sharpen", "Smart Sharpen", "Lens", "CapCut micro-contrast detail & clarity enhancer", "Sharpen", "Filter", "Range", 0.70f, 0.40f, 0.50f, 0xFF81C784L),
+        EffectDefinition("fisheye_lens", "Fisheye", "Lens", "CapCut wide-angle fisheye barrel distortion", "Twist", "Size", "Range", 0.80f, 0.50f, 0.60f, 0xFF4DB6ACL),
+        EffectDefinition("anamorphic_flare", "Laser Beam", "Nightclub", "Horizontal sapphire streak lens flare across highlights", "Atmosphere", "Speed", "Range", 0.85f, 0.45f, 0.75f, 0xFF00B0FFL),
+        EffectDefinition("vhs_tape", "1998 VHS", "VHS", "CapCut magnetic tape tracking lines, timecode & color bleed", "Jitter", "Noise", "Filter", 0.80f, 0.65f, 0.70f, 0xFFFFB74DL),
+        EffectDefinition("crt_scanlines", "DV Camcorder", "Retro", "Retro camcorder frame with REC indicator & scanlines", "Density", "Speed", "Filter", 0.75f, 0.55f, 0.60f, 0xFFAED581L),
+        EffectDefinition("old_film_16mm", "Super 8mm", "Film", "Scratches, dust gate weave, and flickering film roll", "Dust", "Speed", "Filter", 0.75f, 0.60f, 0.55f, 0xFFDCE775L),
+        EffectDefinition("film_grain_35mm", "Nostalgia Grain", "Film", "Organic silver-halide celluloid grain texture", "Grain", "Roughness", "Filter", 0.65f, 0.70f, 0.50f, 0xFFFFD54FL),
+        EffectDefinition("glitch_displacement", "Glitch Lines", "Glitch", "Horizontal RGB block slicing and glitch tear", "Glitch", "Speed", "Range", 0.80f, 0.75f, 0.65f, 0xFFFF4081L),
+        EffectDefinition("rgb_split", "RGB Split", "RGB", "Independent Red, Green, and Blue channel separation", "Offset", "Speed", "Twist", 0.80f, 0.60f, 0.50f, 0xFFE040FBL),
+        EffectDefinition("pixel_mosaic", "Pixelate", "Distortion", "Retro square mosaic pixelation grid", "Size", "Filter", "Range", 0.70f, 0.40f, 0.50f, 0xFF7C4DFFL),
+        EffectDefinition("water_ripple", "Ripple Distortion", "Distortion", "Concentric refractive wave ripples across frame", "Twist", "Speed", "Size", 0.75f, 0.65f, 0.60f, 0xFF00E5FFL),
+        EffectDefinition("sine_wave", "Rebound Swing", "Nightclub", "Rhythmic pendulum wave distortion warp", "Swing", "Speed", "Amplitude", 0.70f, 0.60f, 0.55f, 0xFFFF8A65L),
+        EffectDefinition("warm_light_leak", "Sunset Light", "Light", "Organic amber and crimson film edge light burns", "Light", "Speed", "Filter", 0.80f, 0.45f, 0.75f, 0xFFFFAB40L),
+        EffectDefinition("strobe_flash", "Black Flash", "Trending", "CapCut viral high-energy rhythmic black/white strobe flash", "Speed", "Intensity", "Glow", 0.75f, 0.80f, 0.50f, 0xFFFFFFFFL),
+        EffectDefinition("sparkle_bokeh", "Kira Sparkle", "Spark", "Multi-point starlight glints on bright specular areas", "Size", "Speed", "Number", 0.80f, 0.60f, 0.70f, 0xFFFFF176L),
+        EffectDefinition("starfield_particles", "Fireflies", "Particles", "Glowing bokeh dust and rising firefly particles", "Number", "Speed", "Glow", 0.85f, 0.55f, 0.65f, 0xFFFFB300L),
+        EffectDefinition("rain_drops", "Rainy Night", "Nature", "Diagonal atmospheric rain streaks with mist", "Number", "Angle", "Speed", 0.80f, 0.75f, 0.60f, 0xFF4FC3F7L),
+        EffectDefinition("snowfall", "Snowflakes", "Nature", "Soft layered foreground and background snowflakes", "Number", "Speed", "Size", 0.75f, 0.50f, 0.55f, 0xFFE1F5FEL),
+        EffectDefinition("comic_halftone", "Manga Comic", "Comic", "CMYK halftone dot matrix and bold ink contours", "Size", "Filter", "Color", 0.80f, 0.50f, 0.70f, 0xFFFF5252L),
+        EffectDefinition("perspective_3d", "3D Zoom Pro", "3D", "Dynamic 3D card pitch/yaw floating camera rig", "Tilt", "Speed", "Range", 0.75f, 0.55f, 0.60f, 0xFF7C4DFFL),
+        EffectDefinition("quad_mirror", "Four Screens", "Split", "CapCut 4-screen grid split reflection", "Split", "Speed", "Zoom", 0.85f, 0.50f, 0.50f, 0xFF1DE9B6L),
+        EffectDefinition("kaleidoscope", "Kaleidoscope", "Split", "Multi-faceted hexagonal mirror prism rotation", "Count", "Speed", "Range", 0.85f, 0.60f, 0.70f, 0xFFE040FBL),
+        EffectDefinition("handheld_shake", "Camera Shake", "Shake", "Organic handheld camera sway & motion", "Range", "Speed", "Rotate", 0.65f, 0.50f, 0.45f, 0xFFFFCA28L),
+        EffectDefinition("neon_edge_aura", "Edge Glow", "Trending", "CapCut electric neon contour glow around edges", "Glow", "Speed", "Color", 0.85f, 0.65f, 0.75f, 0xFF00E5FFL),
+        EffectDefinition("dreamy_mist", "Dreamy Glow", "Dream", "Pastel highlight halo and soft contrast diffusion", "Glow", "Range", "Filter", 0.75f, 0.40f, 0.65f, 0xFFF48FB1L),
+        EffectDefinition("digital_noise", "Film Noise", "Noise", "High-frequency chroma and luminance sensor noise", "Noise", "Color", "Speed", 0.70f, 0.80f, 0.50f, 0xFFB0BEC5L),
+        EffectDefinition("chromatic_wave", "Astral Soul Out", "Trending", "CapCut ghosting astral projection zoom wave", "Range", "Speed", "Alpha", 0.80f, 0.60f, 0.65f, 0xFF00E5FFL),
+        EffectDefinition("cyber_hud", "Cyber Frame", "Cyber", "Futuristic telemetry reticle, scan grid, and data readout", "Alpha", "Speed", "Size", 0.85f, 0.65f, 0.70f, 0xFF00E676L),
+        EffectDefinition("energy_aura", "Lightning Aura", "Energy", "High-voltage plasma arcs and radial shockwave rings", "Strength", "Speed", "Size", 0.85f, 0.75f, 0.70f, 0xFF00E5FFL),
+        EffectDefinition("body_neon_clone", "Neon Outline", "Body", "Glowing dual-tone silhouette rim around subject", "Width", "Speed", "Color", 0.80f, 0.60f, 0.65f, 0xFFFF3366L),
+        EffectDefinition("hue_cycle", "Flash Warning", "Nightclub", "Continuous 360-degree neon club color strobe", "Color", "Speed", "Glow", 0.80f, 0.70f, 0.75f, 0xFFD500F9L),
+        EffectDefinition("thermal_vision", "Negative", "Trending", "Inverted color heat signature palette mapping", "Contrast", "Color", "Glow", 0.85f, 0.50f, 0.65f, 0xFFFF6D00L)
     )
 
     val transitionCategories = listOf(
-        "Basic", "Fade", "Blur", "Slide", "Split", "Zoom", "Spin",
-        "Flash", "Glitch", "Light", "Mask", "Motion", "3D", "Creative"
+        "Overlay", "Camera", "Blur", "Basic", "Light Effect", "Glitch", "Slide",
+        "Split", "Mask", "MG", "Social"
     )
 
     val transitions: List<TransitionDefinition> = listOf(
-        TransitionDefinition("none", "None (Cut)", "Basic", 0L, 0xFF636E82L),
-        TransitionDefinition("cross_dissolve", "Cross Dissolve", "Basic", 600L, 0xFF00E5FFL),
-        TransitionDefinition("dip_to_black", "Fade to Black", "Fade", 700L, 0xFF90A4AEL),
-        TransitionDefinition("dip_to_white", "Fade to White", "Fade", 650L, 0xFFFFFFFFL),
-        TransitionDefinition("blur_dissolve", "Optical Blur Dissolve", "Blur", 600L, 0xFF64B5F6L),
-        TransitionDefinition("whip_pan_left", "Whip Pan Left", "Slide", 450L, 0xFF00E676L),
-        TransitionDefinition("whip_pan_right", "Whip Pan Right", "Slide", 450L, 0xFF00E676L),
-        TransitionDefinition("push_up", "Vertical Push Up", "Slide", 500L, 0xFF1DE9B6L),
-        TransitionDefinition("split_horizontal", "Split Barn Door", "Split", 550L, 0xFFFFB300L),
-        TransitionDefinition("split_vertical", "Vertical Split", "Split", 550L, 0xFFFFB300L),
-        TransitionDefinition("zoom_in_warp", "Hyper Zoom In", "Zoom", 500L, 0xFFFF3366L),
-        TransitionDefinition("zoom_out_warp", "Hyper Zoom Out", "Zoom", 500L, 0xFFFF3366L),
-        TransitionDefinition("spin_360", "Vortex Spin 360", "Spin", 550L, 0xFF7C4DFFL),
-        TransitionDefinition("camera_flash", "Paprazzi Flash", "Flash", 400L, 0xFFFFF176L),
-        TransitionDefinition("glitch_tear", "Datamosh Glitch", "Glitch", 450L, 0xFFFF4081L),
-        TransitionDefinition("light_leak_burn", "Film Burn Leak", "Light", 700L, 0xFFFF8A65L),
-        TransitionDefinition("circle_iris", "Circle Iris Wipe", "Mask", 600L, 0xFF00E5FFL),
-        TransitionDefinition("diamond_wipe", "Diamond Mask", "Mask", 600L, 0xFFB388FFL),
-        TransitionDefinition("motion_shutter", "Shutter Roll", "Motion", 500L, 0xFF4DB6ACL),
-        TransitionDefinition("cube_3d", "3D Cube Rotate", "3D", 650L, 0xFF7C4DFFL),
-        TransitionDefinition("kaleido_morph", "Kaleido Morph", "Creative", 700L, 0xFFE040FBL)
+        TransitionDefinition("none", "None", "Overlay", 0L, 0xFF636E82L),
+        TransitionDefinition("cross_dissolve", "Mix", "Overlay", 600L, 0xFF00E5FFL),
+        TransitionDefinition("dip_to_black", "Black Fade", "Overlay", 700L, 0xFF90A4AEL),
+        TransitionDefinition("dip_to_white", "White Flash", "Overlay", 550L, 0xFFFFFFFFL),
+        TransitionDefinition("blur_dissolve", "Vertical Blur", "Blur", 600L, 0xFF64B5F6L),
+        TransitionDefinition("whip_pan_left", "Left", "Camera", 450L, 0xFF00E676L),
+        TransitionDefinition("whip_pan_right", "Right", "Camera", 450L, 0xFF00E676L),
+        TransitionDefinition("push_up", "Up", "Slide", 500L, 0xFF1DE9B6L),
+        TransitionDefinition("split_horizontal", "Split", "Split", 550L, 0xFFFFB300L),
+        TransitionDefinition("split_vertical", "Blinds", "Split", 550L, 0xFFFFB300L),
+        TransitionDefinition("zoom_in_warp", "Pull In", "Camera", 500L, 0xFFFF3366L),
+        TransitionDefinition("zoom_out_warp", "Pull Out", "Camera", 500L, 0xFFFF3366L),
+        TransitionDefinition("spin_360", "CW Swirl", "Camera", 550L, 0xFF7C4DFFL),
+        TransitionDefinition("camera_flash", "Glare", "Light Effect", 400L, 0xFFFFF176L),
+        TransitionDefinition("glitch_tear", "Glitch", "Glitch", 450L, 0xFFFF4081L),
+        TransitionDefinition("light_leak_burn", "Burn", "Light Effect", 700L, 0xFFFF8A65L),
+        TransitionDefinition("circle_iris", "Circle", "Mask", 600L, 0xFF00E5FFL),
+        TransitionDefinition("diamond_wipe", "Diamond", "Mask", 600L, 0xFFB388FFL),
+        TransitionDefinition("motion_shutter", "Film Roll", "Slide", 500L, 0xFF4DB6ACL),
+        TransitionDefinition("cube_3d", "Cube", "MG", 650L, 0xFF7C4DFFL),
+        TransitionDefinition("kaleido_morph", "Distortion", "Glitch", 700L, 0xFFE040FBL)
     )
 
     val templateCategories = listOf(
@@ -286,119 +286,119 @@ object EffectFilterTransitionCatalog {
             id = "tpl_cyber_beat",
             title = "Neon Velocity Beat Sync",
             category = "Trending",
-            author = "@novastudio_pro",
+            author = "@capcut_velocity",
             aspectRatio = AspectRatioMode.RATIO_9_16,
             clipSlotsCount = 3,
             durationSec = 14.5f,
-            usesCountLabel = "142.8K uses",
+            usesCountLabel = "1.4M uses",
             previewDrawableRes = R.drawable.img_sample_cyberpunk,
             accentHex = 0xFF00E5FFL,
             defaultFilterId = "cyber_neon",
             defaultEffectId = "chromatic_aberration",
             defaultTransitionId = "zoom_in_warp",
             titleOverlayText = "NIGHT VELOCITY",
-            subtitleOverlayText = "2026 ANAMORPHIC EDITION",
+            subtitleOverlayText = "CAPCUT VELOCITY EDIT",
             audioPresetId = "synth_cyber_pulse"
         ),
         TemplateDefinition(
             id = "tpl_alpine_cinema",
             title = "Dolomites 21:9 Cinema Log",
             category = "Cinematic",
-            author = "@cinema_colorist",
+            author = "@capcut_cinema",
             aspectRatio = AspectRatioMode.RATIO_16_9,
             clipSlotsCount = 3,
             durationSec = 18.0f,
-            usesCountLabel = "98.4K uses",
+            usesCountLabel = "898.4K uses",
             previewDrawableRes = R.drawable.img_sample_alpine,
             accentHex = 0xFFFFB300L,
             defaultFilterId = "teal_orange",
             defaultEffectId = "halation_bloom",
             defaultTransitionId = "cross_dissolve",
             titleOverlayText = "BEYOND THE PEAKS",
-            subtitleOverlayText = "SHOT ON 35MM ANAMORPHIC",
+            subtitleOverlayText = "OPPENHEIMER & TEAL LUT",
             audioPresetId = "synth_orchestral_horizon"
         ),
         TemplateDefinition(
             id = "tpl_portrait_reel",
             title = "Flash Cut Fashion Reel",
             category = "Reels",
-            author = "@editorial_cuts",
+            author = "@ical_capcut",
             aspectRatio = AspectRatioMode.RATIO_9_16,
             clipSlotsCount = 4,
             durationSec = 12.0f,
-            usesCountLabel = "215.1K uses",
+            usesCountLabel = "2.1M uses",
             previewDrawableRes = R.drawable.img_sample_portrait,
             accentHex = 0xFFFF3366L,
             defaultFilterId = "velvet_skin",
             defaultEffectId = "sparkle_bokeh",
             defaultTransitionId = "camera_flash",
-            titleOverlayText = "STUDIO SERIES",
-            subtitleOverlayText = "COLLECTION 04",
+            titleOverlayText = "ICAL CAPCUT TREND",
+            subtitleOverlayText = "HALO BLUR + DIAMOND ZOOM",
             audioPresetId = "synth_trap_beat"
         ),
         TemplateDefinition(
             id = "tpl_beat_phoonk",
             title = "Bass Shake Montage",
             category = "Beat",
-            author = "@velocity_fx",
+            author = "@phonk_capcut",
             aspectRatio = AspectRatioMode.RATIO_9_16,
             clipSlotsCount = 4,
             durationSec = 11.2f,
-            usesCountLabel = "310.5K uses",
+            usesCountLabel = "3.4M uses",
             previewDrawableRes = R.drawable.img_hero_studio,
             accentHex = 0xFF7C4DFFL,
             defaultFilterId = "hdr_clarity",
             defaultEffectId = "bass_impact_shake",
             defaultTransitionId = "glitch_tear",
-            titleOverlayText = "MAXIMUM OVERDRIVE",
-            subtitleOverlayText = "SPEED RAMP + SHAKE",
+            titleOverlayText = "PHONK DRIFT SHAKE",
+            subtitleOverlayText = "AUTO VELOCITY + BLACK FLASH",
             audioPresetId = "synth_phonk_drive"
         ),
         TemplateDefinition(
             id = "tpl_shorts_hook",
             title = "High-Retention Creator Hook",
             category = "Shorts",
-            author = "@creator_lab",
+            author = "@capcut_creators",
             aspectRatio = AspectRatioMode.RATIO_9_16,
             clipSlotsCount = 3,
             durationSec = 15.0f,
-            usesCountLabel = "89.2K uses",
+            usesCountLabel = "689.2K uses",
             previewDrawableRes = R.drawable.img_sample_cyberpunk,
             accentHex = 0xFF00E676L,
             defaultFilterId = "vivid_pop",
             defaultEffectId = "edge_sharpen",
             defaultTransitionId = "whip_pan_left",
-            titleOverlayText = "3 SECRETS OF CINEMA",
+            titleOverlayText = "AUTO CAPTIONS HOOK",
             subtitleOverlayText = "WATCH UNTIL THE END",
             audioPresetId = "synth_lofi_chill"
         ),
         TemplateDefinition(
             id = "tpl_travel_diary",
-            title = "Kodachrome Travel Postcard",
+            title = "Kodak Gold Travel Postcard",
             category = "Travel",
-            author = "@nomad_frames",
+            author = "@nomad_capcut",
             aspectRatio = AspectRatioMode.RATIO_9_16,
             clipSlotsCount = 3,
             durationSec = 16.0f,
-            usesCountLabel = "74.9K uses",
+            usesCountLabel = "574.9K uses",
             previewDrawableRes = R.drawable.img_sample_alpine,
             accentHex = 0xFFFF8A65L,
             defaultFilterId = "aged_kodachrome",
             defaultEffectId = "film_grain_35mm",
             defaultTransitionId = "light_leak_burn",
             titleOverlayText = "SUMMER IN THE ALPS",
-            subtitleOverlayText = "FIELD NOTES • CH. 02",
+            subtitleOverlayText = "1998 VHS • FILM ROLL",
             audioPresetId = "synth_acoustic_sun"
         ),
         TemplateDefinition(
             id = "tpl_gaming_frag",
             title = "240FPS Cyber Frag Highlight",
             category = "Gaming",
-            author = "@esports_vfx",
+            author = "@capcut_esports",
             aspectRatio = AspectRatioMode.RATIO_16_9,
             clipSlotsCount = 3,
             durationSec = 13.5f,
-            usesCountLabel = "128.0K uses",
+            usesCountLabel = "928.0K uses",
             previewDrawableRes = R.drawable.img_hero_studio,
             accentHex = 0xFF00E5FFL,
             defaultFilterId = "cyber_neon",
@@ -410,31 +410,31 @@ object EffectFilterTransitionCatalog {
         ),
         TemplateDefinition(
             id = "tpl_photo_3d",
-            title = "3D Parallax Photo Dump",
+            title = "3D Zoom Pro Photo Dump",
             category = "Photo",
-            author = "@lens_poetry",
+            author = "@capcut_trends",
             aspectRatio = AspectRatioMode.RATIO_4_5,
             clipSlotsCount = 4,
             durationSec = 10.0f,
-            usesCountLabel = "66.3K uses",
+            usesCountLabel = "1.8M uses",
             previewDrawableRes = R.drawable.img_sample_portrait,
             accentHex = 0xFFE040FBL,
             defaultFilterId = "polaroid_fade",
             defaultEffectId = "perspective_3d",
             defaultTransitionId = "camera_flash",
-            titleOverlayText = "WEEKEND ARCHIVE",
-            subtitleOverlayText = "35MM STILL SERIES",
+            titleOverlayText = "3D PHOTO DUMP",
+            subtitleOverlayText = "CAPCUT 3D ZOOM PRO",
             audioPresetId = "synth_lofi_chill"
         ),
         TemplateDefinition(
             id = "tpl_lyrics_glow",
-            title = "Neon Kinetic Typography Lyrics",
+            title = "Edge Glow Kinetic Lyrics",
             category = "Lyrics",
-            author = "@type_motion",
+            author = "@lyrics_capcut",
             aspectRatio = AspectRatioMode.RATIO_9_16,
             clipSlotsCount = 2,
             durationSec = 14.0f,
-            usesCountLabel = "112.4K uses",
+            usesCountLabel = "1.1M uses",
             previewDrawableRes = R.drawable.img_sample_cyberpunk,
             accentHex = 0xFFB388FFL,
             defaultFilterId = "tokyo_midnight",
@@ -446,73 +446,73 @@ object EffectFilterTransitionCatalog {
         ),
         TemplateDefinition(
             id = "tpl_birthday_spark",
-            title = "Golden Confetti Celebration",
+            title = "Kira Sparkle Birthday Bash",
             category = "Birthday",
-            author = "@moment_studio",
+            author = "@moment_capcut",
             aspectRatio = AspectRatioMode.RATIO_9_16,
             clipSlotsCount = 3,
             durationSec = 12.5f,
-            usesCountLabel = "53.7K uses",
+            usesCountLabel = "453.7K uses",
             previewDrawableRes = R.drawable.img_sample_portrait,
             accentHex = 0xFFFFD54FL,
             defaultFilterId = "golden_hour",
             defaultEffectId = "sparkle_bokeh",
             defaultTransitionId = "circle_iris",
             titleOverlayText = "HAPPY BIRTHDAY",
-            subtitleOverlayText = "ANOTHER CHAPTER BEGINS",
+            subtitleOverlayText = "KIRA SPARKLE + GOLDEN HOUR",
             audioPresetId = "synth_acoustic_sun"
         ),
         TemplateDefinition(
             id = "tpl_love_dream",
-            title = "Soft Pro-Mist Romance",
+            title = "Dreamy Glow Soft Romance",
             category = "Love",
-            author = "@velvet_reels",
+            author = "@velvet_capcut",
             aspectRatio = AspectRatioMode.RATIO_9_16,
             clipSlotsCount = 3,
             durationSec = 15.0f,
-            usesCountLabel = "91.8K uses",
+            usesCountLabel = "791.8K uses",
             previewDrawableRes = R.drawable.img_sample_alpine,
             accentHex = 0xFFF48FB1L,
             defaultFilterId = "peach_glow",
             defaultEffectId = "dreamy_mist",
             defaultTransitionId = "light_leak_burn",
             titleOverlayText = "FOREVER GOLDEN",
-            subtitleOverlayText = "OUR STORY IN MOTION",
+            subtitleOverlayText = "PEACH FILTER + DREAMY GLOW",
             audioPresetId = "synth_orchestral_horizon"
         ),
         TemplateDefinition(
             id = "tpl_daily_vlog",
-            title = "Minimalist Aesthetic Day Vlog",
+            title = "Fuji Pro Aesthetic Day Vlog",
             category = "Vlog",
-            author = "@studio_minimal",
+            author = "@vlog_capcut",
             aspectRatio = AspectRatioMode.RATIO_9_16,
             clipSlotsCount = 4,
             durationSec = 16.5f,
-            usesCountLabel = "104.2K uses",
+            usesCountLabel = "904.2K uses",
             previewDrawableRes = R.drawable.img_hero_studio,
             accentHex = 0xFF4DB6ACL,
             defaultFilterId = "portra_400",
             defaultEffectId = "cinema_vignette",
             defaultTransitionId = "cross_dissolve",
-            titleOverlayText = "07:30 AM // STUDIO LOG",
+            titleOverlayText = "07:30 AM // DAILY VLOG",
             subtitleOverlayText = "A DAY IN THE LIFE",
             audioPresetId = "synth_lofi_chill"
         ),
         TemplateDefinition(
             id = "tpl_youtube_intro",
-            title = "Clean Tech Channel Opener",
+            title = "CapCut Creator Channel Opener",
             category = "Intro",
-            author = "@broadcast_design",
+            author = "@capcut_official",
             aspectRatio = AspectRatioMode.RATIO_16_9,
             clipSlotsCount = 2,
             durationSec = 8.0f,
-            usesCountLabel = "79.5K uses",
+            usesCountLabel = "679.5K uses",
             previewDrawableRes = R.drawable.img_hero_studio,
             accentHex = 0xFF00E5FFL,
             defaultFilterId = "crisp_clean",
             defaultEffectId = "anamorphic_flare",
             defaultTransitionId = "whip_pan_right",
-            titleOverlayText = "NOVACUT ORIGINALS",
+            titleOverlayText = "CAPCUT ORIGINALS",
             subtitleOverlayText = "SUBSCRIBE • NEW EPISODE",
             audioPresetId = "synth_cyber_pulse"
         ),
@@ -520,29 +520,29 @@ object EffectFilterTransitionCatalog {
             id = "tpl_cinema_outro",
             title = "End Credits & Social Callout",
             category = "Outro",
-            author = "@broadcast_design",
+            author = "@capcut_official",
             aspectRatio = AspectRatioMode.RATIO_16_9,
             clipSlotsCount = 2,
             durationSec = 9.0f,
-            usesCountLabel = "44.1K uses",
+            usesCountLabel = "344.1K uses",
             previewDrawableRes = R.drawable.img_sample_cyberpunk,
             accentHex = 0xFF7C4DFFL,
             defaultFilterId = "imax_noir",
             defaultEffectId = "starfield_particles",
             defaultTransitionId = "dip_to_black",
             titleOverlayText = "THANKS FOR WATCHING",
-            subtitleOverlayText = "WATCH NEXT EPISODE →",
+            subtitleOverlayText = "MADE WITH CAPCUT PRO",
             audioPresetId = "synth_orchestral_horizon"
         ),
         TemplateDefinition(
             id = "tpl_social_promo",
-            title = "Bold Brand Product Drop",
+            title = "Viral TikTok & Reels Drop",
             category = "Social",
-            author = "@agency_motion",
+            author = "@viral_capcut",
             aspectRatio = AspectRatioMode.RATIO_1_1,
             clipSlotsCount = 3,
             durationSec = 10.5f,
-            usesCountLabel = "61.9K uses",
+            usesCountLabel = "861.9K uses",
             previewDrawableRes = R.drawable.img_sample_portrait,
             accentHex = 0xFFFF6E40L,
             defaultFilterId = "reel_punch",
@@ -558,7 +558,7 @@ object EffectFilterTransitionCatalog {
         AudioPresetDefinition(
             id = "synth_cyber_pulse",
             title = "Cybernetic Horizon (128 BPM)",
-            artist = "NovaCut Synth Lab",
+            artist = "CapCut Sound Studio",
             category = AudioCategory.MUSIC,
             durationMs = 16000L,
             bpm = 128,
@@ -569,7 +569,7 @@ object EffectFilterTransitionCatalog {
         AudioPresetDefinition(
             id = "synth_orchestral_horizon",
             title = "Dolomites Sunrise Score",
-            artist = "Aether Strings",
+            artist = "CapCut Cinema Audio",
             category = AudioCategory.MUSIC,
             durationMs = 18000L,
             bpm = 96,
@@ -579,8 +579,8 @@ object EffectFilterTransitionCatalog {
         ),
         AudioPresetDefinition(
             id = "synth_phonk_drive",
-            title = "Tokyo Drift Overdrive",
-            artist = "Kuro Bassline",
+            title = "Tokyo Drift Phonk (Beat Sync)",
+            artist = "CapCut Viral Beats",
             category = AudioCategory.MUSIC,
             durationMs = 14000L,
             bpm = 140,
@@ -590,8 +590,8 @@ object EffectFilterTransitionCatalog {
         ),
         AudioPresetDefinition(
             id = "synth_lofi_chill",
-            title = "Midnight Espresso Vinyl",
-            artist = "Velvet Keys",
+            title = "Midnight Aesthetic Lofi",
+            artist = "CapCut Vlog Sounds",
             category = AudioCategory.MUSIC,
             durationMs = 16000L,
             bpm = 85,
@@ -601,8 +601,8 @@ object EffectFilterTransitionCatalog {
         ),
         AudioPresetDefinition(
             id = "synth_trap_beat",
-            title = "Studio Runway 808",
-            artist = "Metro Pulse",
+            title = "ICAL Velocity 808 Beat",
+            artist = "CapCut Trend Lab",
             category = AudioCategory.MUSIC,
             durationMs = 15000L,
             bpm = 150,
@@ -612,8 +612,8 @@ object EffectFilterTransitionCatalog {
         ),
         AudioPresetDefinition(
             id = "synth_acoustic_sun",
-            title = "Golden Coast Acoustic",
-            artist = "Solstice Duo",
+            title = "Golden Hour Acoustic",
+            artist = "CapCut Originals",
             category = AudioCategory.MUSIC,
             durationMs = 16000L,
             bpm = 110,
@@ -623,8 +623,8 @@ object EffectFilterTransitionCatalog {
         ),
         AudioPresetDefinition(
             id = "sfx_whoosh_cinematic",
-            title = "Anamorphic Whoosh Impact",
-            artist = "NovaCut Foley",
+            title = "Transition Whoosh Impact",
+            artist = "CapCut SFX",
             category = AudioCategory.SFX,
             durationMs = 2000L,
             bpm = 120,
@@ -634,8 +634,8 @@ object EffectFilterTransitionCatalog {
         ),
         AudioPresetDefinition(
             id = "sfx_sub_drop",
-            title = "Cinema Sub-Bass Boom",
-            artist = "NovaCut Foley",
+            title = "Bass Shake Boom 808",
+            artist = "CapCut SFX",
             category = AudioCategory.SFX,
             durationMs = 2500L,
             bpm = 120,
@@ -645,8 +645,8 @@ object EffectFilterTransitionCatalog {
         ),
         AudioPresetDefinition(
             id = "sfx_camera_shutter",
-            title = "35mm SLR Shutter Click",
-            artist = "NovaCut Foley",
+            title = "Flash Shutter Click",
+            artist = "CapCut SFX",
             category = AudioCategory.SFX,
             durationMs = 1200L,
             bpm = 120,
@@ -657,7 +657,7 @@ object EffectFilterTransitionCatalog {
         AudioPresetDefinition(
             id = "sfx_glitch_riser",
             title = "Cyber Glitch Riser",
-            artist = "NovaCut Foley",
+            artist = "CapCut SFX",
             category = AudioCategory.SFX,
             durationMs = 2200L,
             bpm = 128,
@@ -690,33 +690,33 @@ object EffectFilterTransitionCatalog {
     val animationsCatalog: List<AnimationPreset> = listOf(
         AnimationPreset("none", "None", "IN", 0L),
         AnimationPreset("fade_in", "Fade In", "IN", 500L),
-        AnimationPreset("pop_up", "Spring Pop", "IN", 450L),
-        AnimationPreset("slide_up", "Slide Up", "IN", 500L),
-        AnimationPreset("whip_left", "Whip Left", "IN", 400L),
-        AnimationPreset("zoom_drop", "Zoom Drop", "IN", 500L),
-        AnimationPreset("spin_in", "Spin Reveal", "IN", 550L),
-        AnimationPreset("glitch_in", "Glitch Snap", "IN", 450L),
+        AnimationPreset("pop_up", "Rock Vertically", "IN", 450L),
+        AnimationPreset("slide_up", "Swing Bottom", "IN", 500L),
+        AnimationPreset("whip_left", "Rock Horizontally", "IN", 400L),
+        AnimationPreset("zoom_drop", "Zoom 1", "IN", 500L),
+        AnimationPreset("spin_in", "Spin", "IN", 550L),
+        AnimationPreset("glitch_in", "Mini Zoom", "IN", 450L),
         AnimationPreset("typewriter", "Typewriter", "IN", 800L),
 
         AnimationPreset("none", "None", "OUT", 0L),
         AnimationPreset("fade_out", "Fade Out", "OUT", 500L),
         AnimationPreset("slide_down", "Slide Down", "OUT", 450L),
-        AnimationPreset("zoom_vanish", "Zoom Vanish", "OUT", 450L),
-        AnimationPreset("glitch_out", "Glitch Dissolve", "OUT", 450L),
+        AnimationPreset("zoom_vanish", "Zoom Out", "OUT", 450L),
+        AnimationPreset("glitch_out", "Spin Out", "OUT", 450L),
 
         AnimationPreset("none", "None", "LOOP", 0L),
-        AnimationPreset("pulse", "Heartbeat Pulse", "LOOP", 1000L),
-        AnimationPreset("float_wave", "Floating Wave", "LOOP", 1600L),
-        AnimationPreset("neon_flicker", "Neon Flicker", "LOOP", 800L),
-        AnimationPreset("pendulum", "Pendulum Tilt", "LOOP", 1400L),
-        AnimationPreset("jitter", "Handheld Jitter", "LOOP", 600L)
+        AnimationPreset("pulse", "Pendulum 1", "LOOP", 1000L),
+        AnimationPreset("float_wave", "Pendulum 2", "LOOP", 1600L),
+        AnimationPreset("neon_flicker", "Distort Left", "LOOP", 800L),
+        AnimationPreset("pendulum", "Bounce", "LOOP", 1400L),
+        AnimationPreset("jitter", "Wobble", "LOOP", 600L)
     )
 
     val stickersCatalog: List<StickerDefinition> = listOf(
         StickerDefinition("stk_rec", "REC Indicator", "● REC", "Studio", 0xFFFF3366L),
         StickerDefinition("stk_4k", "4K UHD Badge", "4K UHD", "Studio", 0xFF00E5FFL),
         StickerDefinition("stk_fire", "Trending Fire", "🔥 HOT", "Social", 0xFFFF6E40L),
-        StickerDefinition("stk_star", "Cinema Award", "★ SELECTION", "Cinema", 0xFFFFD54FL),
+        StickerDefinition("stk_star", "CapCut Choice", "★ FEATURED", "Cinema", 0xFFFFD54FL),
         StickerDefinition("stk_bolt", "High Voltage", "⚡ FLASH", "Energy", 0xFFFFEA00L),
         StickerDefinition("stk_sound", "Audio On", "♪ SOUND ON", "Social", 0xFF00E676L),
         StickerDefinition("stk_frame", "Crop Crosshair", "⌖ FOCUS", "Studio", 0xFFFFFFFFL),
@@ -731,6 +731,18 @@ object EffectFilterTransitionCatalog {
     fun findEffect(id: String): EffectDefinition? = effects.find { it.id == id }
     fun findTransition(id: String): TransitionDefinition? = transitions.find { it.id == id }
     fun findTemplate(id: String): TemplateDefinition? = templates.find { it.id == id }
+
+    fun safeDrawableRes(resId: Int): Int {
+        return when (resId) {
+            R.drawable.img_hero_studio,
+            R.drawable.img_sample_cyberpunk,
+            R.drawable.img_sample_alpine,
+            R.drawable.img_sample_portrait,
+            R.drawable.img_app_icon,
+            R.drawable.img_capcut_icon -> resId
+            else -> R.drawable.img_sample_cyberpunk
+        }
+    }
 
     /**
      * Instant unified search across Effects, Filters, Transitions, Templates, Fonts, Stickers, and Sounds.
@@ -962,5 +974,108 @@ object EffectFilterTransitionCatalog {
             coverTitleText = template.titleOverlayText,
             templateSourceId = template.id
         )
+    }
+
+    /**
+     * Builds the 5 default CapCut projects shown in the Home screen recent project strip and Projects tab.
+     */
+    fun buildDefaultSeedProjects(): List<VideoProject> {
+        val now = System.currentTimeMillis()
+        val projOct03 = VideoProject(
+            id = "seed_proj_oct03",
+            name = "Project Oct 03 20:11",
+            createdAtMs = now - 120_000L,
+            updatedAtMs = now - 30_000L,
+            aspectRatio = AspectRatioMode.RATIO_16_9,
+            exportResolution = "1080p",
+            exportFps = 30,
+            primaryClips = listOf(
+                TimelineClip(
+                    id = "seed_clip_oct03_1",
+                    title = "Tokyo_Neon_Anamorphic_4K.mp4",
+                    sampleDrawableRes = R.drawable.img_sample_cyberpunk,
+                    sourceDurationMs = 5500L,
+                    trimStartMs = 0L,
+                    trimEndMs = 4000L,
+                    filterId = "cyber_neon",
+                    filterIntensity = 0.85f,
+                    transitionAfter = TransitionConfig(transitionId = "cross_dissolve", durationMs = 500L),
+                    keyframes = listOf(
+                        Keyframe(
+                            timestampMs = 0L,
+                            property = KeyframeProperty.SCALE,
+                            value = 1.0f,
+                            interpolation = KeyframeInterpolation.EASE_IN_OUT
+                        ),
+                        Keyframe(
+                            timestampMs = 4000L,
+                            property = KeyframeProperty.SCALE,
+                            value = 1.12f,
+                            interpolation = KeyframeInterpolation.EASE_IN_OUT
+                        )
+                    )
+                ),
+                TimelineClip(
+                    id = "seed_clip_oct03_2",
+                    title = "Dolomites_FPV_Sunrise.mp4",
+                    sampleDrawableRes = R.drawable.img_sample_alpine,
+                    sourceDurationMs = 6000L,
+                    trimStartMs = 0L,
+                    trimEndMs = 4500L,
+                    filterId = "teal_orange",
+                    filterIntensity = 0.80f
+                )
+            ),
+            audioClips = listOf(
+                AudioClip(
+                    title = "Cybernetic Horizon (128 BPM)",
+                    artistOrSource = "CapCut Sound Studio",
+                    builtInSynthId = "synth_cyber_pulse",
+                    category = AudioCategory.MUSIC,
+                    timelineStartMs = 0L,
+                    durationMs = 8000L,
+                    waveform = audioPresets.first().waveform,
+                    beatMarkersMs = audioPresets.first().beatMarkersMs.filter { it < 8000L }
+                )
+            ),
+            coverDrawableRes = R.drawable.img_sample_cyberpunk,
+            coverTitleText = "Project Oct 03 20:11"
+        )
+
+        val bassShakeTpl = findTemplate("tpl_beat_phoonk") ?: templates[3]
+        val cyberBeatTpl = findTemplate("tpl_cyber_beat") ?: templates[0]
+        val portraitReelTpl = findTemplate("tpl_portrait_reel") ?: templates[2]
+        val alpineCinemaTpl = findTemplate("tpl_alpine_cinema") ?: templates[1]
+
+        val projBassShake = buildProjectFromTemplate(bassShakeTpl).copy(
+            id = "seed_proj_2",
+            name = "Bass Shake Montage",
+            coverDrawableRes = R.drawable.img_hero_studio,
+            createdAtMs = now - 1800_000L,
+            updatedAtMs = now - 600_000L
+        )
+        val projCyber = buildProjectFromTemplate(cyberBeatTpl).copy(
+            id = "seed_proj_3",
+            name = "Neon Velocity Beat Sync",
+            coverDrawableRes = R.drawable.img_sample_cyberpunk,
+            createdAtMs = now - 3600_000L,
+            updatedAtMs = now - 1200_000L
+        )
+        val projPortrait = buildProjectFromTemplate(portraitReelTpl).copy(
+            id = "seed_proj_4",
+            name = "Flash Cut Fashion Reel",
+            coverDrawableRes = R.drawable.img_sample_portrait,
+            createdAtMs = now - 7200_000L,
+            updatedAtMs = now - 2400_000L
+        )
+        val projAlpine = buildProjectFromTemplate(alpineCinemaTpl).copy(
+            id = "seed_proj_5",
+            name = "Dolomites 21:9 Cinema Log",
+            coverDrawableRes = R.drawable.img_sample_alpine,
+            createdAtMs = now - 10800_000L,
+            updatedAtMs = now - 3600_000L
+        )
+
+        return listOf(projOct03, projBassShake, projCyber, projPortrait, projAlpine)
     }
 }

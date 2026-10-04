@@ -90,12 +90,13 @@ class MediaAndExportEngine(private val context: Context) {
     }
 
     private fun decodeSampledResource(resId: Int, maxDim: Int): Bitmap? {
+        val safeRes = EffectFilterTransitionCatalog.safeDrawableRes(resId)
         val opts = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-        BitmapFactory.decodeResource(context.resources, resId, opts)
+        BitmapFactory.decodeResource(context.resources, safeRes, opts)
         opts.inSampleSize = calculateInSampleSize(opts.outWidth, opts.outHeight, maxDim, maxDim)
         opts.inJustDecodeBounds = false
         opts.inPreferredConfig = Bitmap.Config.ARGB_8888
-        return BitmapFactory.decodeResource(context.resources, resId, opts)
+        return BitmapFactory.decodeResource(context.resources, safeRes, opts)
     }
 
     private fun decodeSampledStream(uri: Uri, maxDim: Int): Bitmap? {
@@ -387,10 +388,10 @@ class MediaAndExportEngine(private val context: Context) {
                 )
             )
 
-            val exportDir = File(context.getExternalFilesDir(Environment.DIRECTORY_MOVIES) ?: context.filesDir, "NovaCutExports").apply {
+            val exportDir = File(context.getExternalFilesDir(Environment.DIRECTORY_MOVIES) ?: context.filesDir, "CapCutExports").apply {
                 mkdirs()
             }
-            val safeName = project.name.replace(Regex("[^a-zA-Z0-9_-]"), "_").ifBlank { "NovaCut_Video" }
+            val safeName = project.name.replace(Regex("[^a-zA-Z0-9_-]"), "_").ifBlank { "CapCut_Video" }
             val outFile = File(exportDir, "${safeName}_${config.resolution}_${config.fps}fps_${System.currentTimeMillis()}.mp4")
 
             // Use a memory-reused render surface Bitmap (scaled for safe heap usage even in 4K mode)
@@ -546,7 +547,7 @@ class MediaAndExportEngine(private val context: Context) {
                 put(MediaStore.Video.Media.HEIGHT, height)
                 put(MediaStore.Video.Media.DURATION, durationMs)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    put(MediaStore.Video.Media.RELATIVE_PATH, Environment.DIRECTORY_MOVIES + "/NovaCut")
+                    put(MediaStore.Video.Media.RELATIVE_PATH, Environment.DIRECTORY_MOVIES + "/CapCut")
                     put(MediaStore.Video.Media.IS_PENDING, 1)
                 }
             }

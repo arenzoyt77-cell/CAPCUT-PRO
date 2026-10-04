@@ -443,9 +443,10 @@ private fun FilterEnginePanel(
     clip: com.example.model.TimelineClip?
 ) {
     if (clip == null) return
-    var selectedCat by remember { mutableStateOf("Cinema") }
+    var selectedCat by remember { mutableStateOf("Featured") }
     val filteredList = remember(selectedCat) {
-        EffectFilterTransitionCatalog.filters.filter { it.category == selectedCat }
+        val list = EffectFilterTransitionCatalog.filters.filter { it.category == selectedCat }
+        list.ifEmpty { EffectFilterTransitionCatalog.filters }
     }
 
     Column(
@@ -792,12 +793,13 @@ private fun TransitionsEnginePanel(
     clip: com.example.model.TimelineClip?
 ) {
     if (clip == null) return
-    var selectedCat by remember { mutableStateOf("Basic") }
+    var selectedCat by remember { mutableStateOf("Overlay") }
     var durationMs by remember(clip.id) { mutableStateOf(clip.transitionAfter.durationMs.toFloat()) }
     val filtered = remember(selectedCat) {
-        EffectFilterTransitionCatalog.transitions.filter {
-            selectedCat == "Basic" || it.category == selectedCat
+        val list = EffectFilterTransitionCatalog.transitions.filter {
+            it.category == selectedCat
         }
+        list.ifEmpty { EffectFilterTransitionCatalog.transitions }
     }
 
     Column(

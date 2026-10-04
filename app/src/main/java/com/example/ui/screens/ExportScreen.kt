@@ -82,7 +82,9 @@ fun ExportScreen(viewModel: NovaCutViewModel) {
     val context = LocalContext.current
 
     val totalDurationMs = VideoRenderEngine.computeProjectTotalDurationMs(project)
-    val coverRes = project.primaryClips.firstOrNull()?.sampleDrawableRes ?: project.coverDrawableRes
+    val coverRes = com.example.engine.EffectFilterTransitionCatalog.safeDrawableRes(
+        project.primaryClips.firstOrNull()?.sampleDrawableRes ?: project.coverDrawableRes
+    )
 
     val bitrateMbps = when (config.qualityPreset) {
         "Lower" -> 8.5f
@@ -121,7 +123,7 @@ fun ExportScreen(viewModel: NovaCutViewModel) {
             ) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back to editor", tint = TextPrimary)
             }
-            Text("Export Studio Master", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
+            Text("CapCut Export Master", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
             Spacer(modifier = Modifier.width(40.dp))
         }
 
@@ -413,7 +415,7 @@ fun ExportScreen(viewModel: NovaCutViewModel) {
                                         val sendIntent = Intent(Intent.ACTION_SEND).apply {
                                             type = "video/mp4"
                                             putExtra(Intent.EXTRA_SUBJECT, project.name)
-                                            putExtra(Intent.EXTRA_TEXT, "Exported with NovaCut (${config.resolution} ${config.fps}fps)")
+                                            putExtra(Intent.EXTRA_TEXT, "Exported with CapCut (${config.resolution} ${config.fps}fps)")
                                         }
                                         context.startActivity(Intent.createChooser(sendIntent, "Share Video"))
                                     },
