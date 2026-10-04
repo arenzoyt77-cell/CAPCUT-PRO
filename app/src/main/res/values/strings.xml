@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">NovaCut</string>
+    <string name="hero_subtitle">Professional Multi-Track NLE Studio</string>
+    <string name="cta_new_video">New video</string>
+    <string name="cta_edit_photo">Edit photo</string>
+    <string name="section_recent_projects">Recent projects</string>
+    <string name="section_studio_tools">Studio toolkit</string>
+    <string name="nav_edit">Edit</string>
+    <string name="nav_templates">Templates</string>
+    <string name="nav_ai_lab">AI Lab</string>
+    <string name="nav_projects">Projects</string>
+    <string name="nav_inbox">Inbox</string>
+    <string name="nav_me">Me</string>
+    <string name="picker_title">Select Media</string>
+    <string name="picker_add">Add</string>
+    <string name="editor_export">Export</string>
+    <string name="search_placeholder">Search effects, filters, templates, fonts, sounds…</string>
+</resources>
