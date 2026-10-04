@@ -220,6 +220,9 @@ class NovaCutViewModel(application: Application) : AndroidViewModel(application)
     val exportProgress: StateFlow<ExportProgressState> = _exportProgress.asStateFlow()
 
     // Omkar Automatic Video Maker State
+    private val _isOmkarAutoMakerMode = MutableStateFlow(false)
+    val isOmkarAutoMakerMode: StateFlow<Boolean> = _isOmkarAutoMakerMode.asStateFlow()
+
     private val _autoEditSummary = MutableStateFlow("")
     val autoEditSummary: StateFlow<String> = _autoEditSummary.asStateFlow()
 
@@ -301,7 +304,11 @@ class NovaCutViewModel(application: Application) : AndroidViewModel(application)
         _currentScreen.value = AppScreen.CAMERA_CAPTURE
     }
 
-    fun openProjectInEditor(project: VideoProject, initialTab: EditorToolTab = EditorToolTab.EDIT) {
+    fun openProjectInEditor(
+        project: VideoProject,
+        initialTab: EditorToolTab = EditorToolTab.EDIT,
+        omkarAutoMode: Boolean = project.name.startsWith("Omkar Auto", ignoreCase = true)
+    ) {
         pausePlayback()
         undoStack.clear()
         redoStack.clear()
@@ -315,7 +322,38 @@ class NovaCutViewModel(application: Application) : AndroidViewModel(application)
         _selectedEffectId.value = null
         _selectedStickerId.value = null
         _activeEditorTab.value = initialTab
+        _isOmkarAutoMakerMode.value = omkarAutoMode
         _currentScreen.value = AppScreen.EDITOR
+    }
+
+    /**
+     * Opens the OMKAR AUTOMATIC VIDEO MAKER screen directly from the Home Screen "Auto Editing" entry point.
+     * Reuses the canonical timeline, speech-analysis, keyframe engine, preview, and export pipeline.
+     */
+    fun openOmkarAutoVideoMakerScreen() {
+        pausePlayback()
+        _isOmkarAutoMakerMode.value = true
+        val currentProj = _activeProject.value
+        val needsAutoPipeline = currentProj.primaryClips.isEmpty() || !currentProj.primaryClips.all { it.isAutoSplitClip }
+        val targetProj = if (needsAutoPipeline) {
+            val autoRes = OmkarAutoVideoEngine.executeAutomaticEditPipeline(
+                context = getApplication(),
+                project = currentProj.copy(
+                    name = if (currentProj.name.startsWith("Omkar Auto")) currentProj.name else "Omkar Auto • ${currentProj.name}"
+                ),
+                motionMode = currentProj.automaticMotionMode,
+                targetZoomFactor = currentProj.autoZoomTargetFactor,
+                customTranscript = _customSpeechTranscript.value,
+                generateSyncedCaptions = _autoGenerateCaptions.value
+            )
+            _autoEditSummary.value = autoRes.summaryMessage
+            autoRes.updatedProject
+        } else {
+            currentProj
+        }
+        viewModelScope.launch { repository.saveProject(targetProj) }
+        openProjectInEditor(targetProj, EditorToolTab.EDIT, omkarAutoMode = true)
+        showToastMessage("OMKAR AUTOMATIC VIDEO MAKER • Speech split & keyframes ready")
     }
 
     fun launchShortcutTool(toolId: String) {
@@ -402,6 +440,7 @@ class NovaCutViewModel(application: Application) : AndroidViewModel(application)
                 viewModelScope.launch {
                     repository.saveProject(_activeProject.value)
                 }
+                _isOmkarAutoMakerMode.value = false
                 _currentScreen.value = AppScreen.HOME
                 true
             }
@@ -410,7 +449,7 @@ class NovaCutViewModel(application: Application) : AndroidViewModel(application)
                         MediaPickerPurpose.ADD_PRIMARY_CLIP,
                         MediaPickerPurpose.ADD_OVERLAY_CLIP,
                         MediaPickerPurpose.REPLACE_CLIP
-                    )
+                    ) || (_pickerPurpose.value == MediaPickerPurpose.AUTOCUT_TEMPLATE && _isOmkarAutoMakerMode.value)
                 ) {
                     AppScreen.EDITOR
                 } else {
@@ -592,7 +631,7 @@ class NovaCutViewModel(application: Application) : AndroidViewModel(application)
                 )
                 _autoEditSummary.value = autoResult.summaryMessage
                 viewModelScope.launch { repository.saveProject(autoResult.updatedProject) }
-                openProjectInEditor(autoResult.updatedProject, EditorToolTab.EDIT)
+                openProjectInEditor(autoResult.updatedProject, EditorToolTab.EDIT, omkarAutoMode = true)
                 showToastMessage(autoResult.summaryMessage)
             }
             MediaPickerPurpose.ADD_PRIMARY_CLIP -> {

@@ -2,6 +2,9 @@
     <string name="app_name">NovaCut</string>
     <string name="cta_new_video">New video</string>
     <string name="cta_edit_photo">Edit photo</string>
+    <string name="cta_auto_editing">⚡ Auto Editing</string>
+    <string name="cta_auto_editing_subtitle">AI-powered automatic video editing</string>
+    <string name="omkar_auto_video_maker_title">OMKAR AUTOMATIC VIDEO MAKER</string>
     <string name="section_recent_projects">Recent projects</string>
     <string name="section_studio_tools">Studio Toolkit</string>
     <string name="nav_edit">Edit</string>

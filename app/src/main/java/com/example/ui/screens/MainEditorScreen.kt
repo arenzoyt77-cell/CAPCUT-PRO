@@ -154,6 +154,7 @@ fun MainEditorScreen(viewModel: NovaCutViewModel) {
     val showSearch by viewModel.showGlobalSearch.collectAsStateWithLifecycle()
     val showFpsOverlay by viewModel.showFpsOverlay.collectAsStateWithLifecycle()
     val proxyEnabled by viewModel.proxyPreviewEnabled.collectAsStateWithLifecycle()
+    val isOmkarAutoMakerMode by viewModel.isOmkarAutoMakerMode.collectAsStateWithLifecycle()
 
     val totalDurationMs = remember(project) {
         VideoRenderEngine.computeProjectTotalDurationMs(project)
@@ -172,10 +173,12 @@ fun MainEditorScreen(viewModel: NovaCutViewModel) {
                 project = project,
                 canUndo = canUndo,
                 canRedo = canRedo,
+                isOmkarAutoMakerMode = isOmkarAutoMakerMode,
                 onBack = { viewModel.navigateBack() },
                 onUndo = { viewModel.undo() },
                 onRedo = { viewModel.redo() },
                 onSearch = { viewModel.setGlobalSearchVisible(true) },
+                onSelectVideoForAutoEdit = { viewModel.openMediaPicker(MediaPickerPurpose.AUTOCUT_TEMPLATE) },
                 onSelectResolutionAndFps = { res, fps ->
                     viewModel.updateExportConfig(
                         viewModel.exportConfig.value.copy(resolution = res, fps = fps)
@@ -360,23 +363,74 @@ private fun EditorTopHeaderBar(
     project: VideoProject,
     canUndo: Boolean,
     canRedo: Boolean,
+    isOmkarAutoMakerMode: Boolean,
     onBack: () -> Unit,
     onUndo: () -> Unit,
     onRedo: () -> Unit,
     onSearch: () -> Unit,
+    onSelectVideoForAutoEdit: () -> Unit,
     onSelectResolutionAndFps: (String, Int) -> Unit,
     onExport: () -> Unit
 ) {
     var showResMenu by remember { mutableStateOf(false) }
 
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(StudioSurface)
-            .padding(horizontal = 8.dp, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        if (isOmkarAutoMakerMode) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFF0C1526))
+                    .padding(horizontal = 12.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.AutoAwesome,
+                        contentDescription = null,
+                        tint = CyanAccent,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "OMKAR AUTOMATIC VIDEO MAKER",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = CyanAccent,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.testTag("omkar_header_title")
+                    )
+                }
+
+                Surface(
+                    color = CyanAccent.copy(alpha = 0.16f),
+                    shape = RoundedCornerShape(6.dp),
+                    modifier = Modifier
+                        .border(0.75.dp, CyanAccent.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
+                        .clickable { onSelectVideoForAutoEdit() }
+                        .testTag("omkar_select_video_button")
+                ) {
+                    Text(
+                        text = "Select Video",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = CyanAccent,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                    )
+                }
+            }
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(
                 onClick = onBack,
@@ -490,6 +544,7 @@ private fun EditorTopHeaderBar(
                 Spacer(modifier = Modifier.width(4.dp))
                 Text("Export", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
             }
+        }
         }
     }
 }

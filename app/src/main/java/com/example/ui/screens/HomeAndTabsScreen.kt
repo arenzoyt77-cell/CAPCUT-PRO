@@ -53,6 +53,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.material.icons.filled.Wallpaper
@@ -216,6 +217,7 @@ fun HomeAndTabsScreen(viewModel: NovaCutViewModel) {
                     projects = projects,
                     onNewVideo = { viewModel.openMediaPicker(MediaPickerPurpose.NEW_PROJECT_VIDEO) },
                     onEditPhoto = { viewModel.openMediaPicker(MediaPickerPurpose.NEW_PROJECT_PHOTO) },
+                    onAutoEditing = { viewModel.openOmkarAutoVideoMakerScreen() },
                     onLaunchTool = { viewModel.launchShortcutTool(it) },
                     onOpenProject = { viewModel.openProjectInEditor(it) },
                     onRenameProject = {
@@ -429,6 +431,7 @@ private fun HomeEditDashboard(
     projects: List<VideoProject>,
     onNewVideo: () -> Unit,
     onEditPhoto: () -> Unit,
+    onAutoEditing: () -> Unit,
     onLaunchTool: (String) -> Unit,
     onOpenProject: (VideoProject) -> Unit,
     onRenameProject: (VideoProject) -> Unit,
@@ -440,11 +443,11 @@ private fun HomeEditDashboard(
         modifier = Modifier
             .fillMaxSize()
             .testTag("home_dashboard_list"),
-        contentPadding = PaddingValues(top = 4.dp, bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        contentPadding = PaddingValues(top = 4.dp, bottom = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         // =====================================================================
-        // 1. HERO / CREATE SECTION (Dark Premium Hero Card)
+        // 1. HERO / CREATE SECTION (Dark Premium Hero Card + Auto Editing)
         // =====================================================================
         item {
             Column(
@@ -477,14 +480,11 @@ private fun HomeEditDashboard(
                             contentDescription = "Studio hero backdrop",
                             contentScale = ContentScale.Crop,
                             alpha = 0.28f,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(154.dp)
+                            modifier = Modifier.matchParentSize()
                         )
                         Box(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(154.dp)
+                                .matchParentSize()
                                 .background(
                                     Brush.verticalGradient(
                                         colors = listOf(
@@ -499,7 +499,7 @@ private fun HomeEditDashboard(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(12.dp)
+                                .padding(10.dp)
                         ) {
                             // Technical feature strip + Autosave Active status
                             Row(
@@ -520,7 +520,7 @@ private fun HomeEditDashboard(
                                         text = "KEYFRAMES • CURVES • 4K HDR",
                                         style = MaterialTheme.typography.labelSmall,
                                         color = CyanAccent,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                                     )
                                 }
 
@@ -540,7 +540,7 @@ private fun HomeEditDashboard(
                                 }
                             }
 
-                            Spacer(modifier = Modifier.height(10.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
 
                             // Main Dark Action Cards: New video (Primary Highlighted) & Edit photo
                             Row(
@@ -567,6 +567,14 @@ private fun HomeEditDashboard(
                                     modifier = Modifier.weight(1f)
                                 )
                             }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            // First-Class Independent Feature Card: AUTO EDITING -> OMKAR AUTOMATIC VIDEO MAKER
+                            AutoEditingHeroCard(
+                                onClick = onAutoEditing,
+                                modifier = Modifier.fillMaxWidth()
+                            )
                         }
                     }
                 }
@@ -754,7 +762,7 @@ private fun HeroActionCard(
                 scaleX = scale
                 scaleY = scale
             }
-            .height(102.dp)
+            .height(84.dp)
             .shadow(
                 elevation = if (isPrimary) 12.dp else 4.dp,
                 shape = RoundedCornerShape(16.dp),
@@ -774,7 +782,7 @@ private fun HeroActionCard(
                 onClick = onClick
             )
             .testTag(testTag)
-            .padding(12.dp)
+            .padding(10.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -842,6 +850,156 @@ private fun HeroActionCard(
     }
 }
 
+@Composable
+private fun AutoEditingHeroCard(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.97f else 1f,
+        animationSpec = tween(durationMillis = 110),
+        label = "autoEditingCardScale"
+    )
+
+    val backgroundBrush = Brush.linearGradient(
+        colors = listOf(
+            Color(0xFF101D33),
+            Color(0xFF14182D),
+            Color(0xFF1E1436)
+        )
+    )
+
+    val borderBrush = Brush.linearGradient(
+        colors = listOf(
+            CyanAccent.copy(alpha = 0.85f),
+            Color(0xFF4D8BFF).copy(alpha = 0.70f),
+            VioletAccent.copy(alpha = 0.85f)
+        )
+    )
+
+    Box(
+        modifier = modifier
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .height(58.dp)
+            .shadow(
+                elevation = 8.dp,
+                shape = RoundedCornerShape(15.dp),
+                ambientColor = CyanAccent,
+                spotColor = VioletAccent
+            )
+            .clip(RoundedCornerShape(15.dp))
+            .background(backgroundBrush)
+            .border(
+                width = 1.dp,
+                brush = borderBrush,
+                shape = RoundedCornerShape(15.dp)
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
+            .testTag("cta_auto_editing")
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                // Sparkles + Video Timeline Dual Badge Icon
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(
+                                    CyanAccent.copy(alpha = 0.25f),
+                                    VioletAccent.copy(alpha = 0.28f)
+                                )
+                            )
+                        )
+                        .border(
+                            0.75.dp,
+                            CyanAccent.copy(alpha = 0.6f),
+                            RoundedCornerShape(10.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AutoAwesome,
+                        contentDescription = "Auto Editing",
+                        tint = CyanAccent,
+                        modifier = Modifier.size(19.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "⚡ Auto Editing",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = TextPrimary,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = "AI-powered automatic video editing",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            // Right-side OMKAR Timeline Badge
+            Surface(
+                color = CyanAccent.copy(alpha = 0.16f),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.border(
+                    0.5.dp,
+                    CyanAccent.copy(alpha = 0.55f),
+                    RoundedCornerShape(8.dp)
+                )
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Timeline,
+                        contentDescription = null,
+                        tint = CyanAccent,
+                        modifier = Modifier.size(13.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "AUTO EDITING",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = CyanAccent,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+    }
+}
+
 private data class ShortcutToolItem(
     val id: String,
     val label: String,
@@ -871,7 +1029,7 @@ private fun StudioToolkitCompactButton(
                 scaleX = scale
                 scaleY = scale
             }
-            .height(46.dp)
+            .height(42.dp)
             .border(1.dp, Color(0xFF1D2536), RoundedCornerShape(12.dp))
             .clip(RoundedCornerShape(12.dp))
             .clickable(
@@ -959,7 +1117,7 @@ private fun RecentProjectCarouselCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(94.dp)
+                    .height(72.dp)
             ) {
                 Image(
                     painter = painterResource(id = coverRes),

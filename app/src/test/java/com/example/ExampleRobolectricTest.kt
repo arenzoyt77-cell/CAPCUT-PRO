@@ -69,6 +69,12 @@ class ExampleRobolectricTest {
         composeTestRule.onNodeWithTag("cta_edit_photo").assertIsDisplayed()
         composeTestRule.onNodeWithText("RAW & HSL grade").assertIsDisplayed()
 
+        // 2b. Verify First-Class Independent "Auto Editing" Feature Card on Home Screen
+        composeTestRule.onNodeWithTag("cta_auto_editing").assertIsDisplayed()
+        composeTestRule.onNodeWithText("⚡ Auto Editing").assertIsDisplayed()
+        composeTestRule.onNodeWithText("AI-powered automatic video editing").assertIsDisplayed()
+        composeTestRule.onNodeWithText("AUTO EDITING").assertIsDisplayed()
+
         // 3. Verify Studio Toolkit (3x3 Grid)
         composeTestRule.onNodeWithText("Studio Toolkit").assertIsDisplayed()
         composeTestRule.onNodeWithText("AutoCut").assertIsDisplayed()
@@ -109,7 +115,20 @@ class ExampleRobolectricTest {
         composeTestRule.onNodeWithTag("nav_tab_edit").performClick()
         composeTestRule.waitForIdle()
 
-        // 8. Navigate: HOME -> New Video -> Media Picker -> Editor
+        // 8. Navigate: HOME -> Auto Editing -> OMKAR AUTOMATIC VIDEO MAKER -> Back -> HOME
+        composeTestRule.onNodeWithTag("cta_auto_editing").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag("omkar_header_title").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("omkar_select_video_button").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("omkar_auto_maker_card").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("editor_preview_canvas").assertIsDisplayed()
+
+        // Back button returns from OMKAR AUTOMATIC VIDEO MAKER -> Home Screen
+        composeTestRule.onNodeWithTag("editor_close_button").performClick()
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag("cta_auto_editing").assertIsDisplayed()
+
+        // 9. Navigate: HOME -> New Video -> Media Picker -> Editor
         composeTestRule.onNodeWithTag("cta_new_video").performClick()
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("Select Media").assertIsDisplayed()

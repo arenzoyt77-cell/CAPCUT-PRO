@@ -170,11 +170,19 @@ private fun EditClipInspectorPanel(
                                 color = TextSecondary
                             )
                         }
-                        SmallActionButton(
-                            label = "Analyze & Auto Split",
-                            tint = CyanAccent
-                        ) {
-                            viewModel.runOmkarAutoVideoMaker()
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            SmallActionButton(
+                                label = "Select Video",
+                                tint = VioletAccent
+                            ) {
+                                viewModel.openMediaPicker(MediaPickerPurpose.AUTOCUT_TEMPLATE)
+                            }
+                            SmallActionButton(
+                                label = "Analyze & Auto Split",
+                                tint = CyanAccent
+                            ) {
+                                viewModel.runOmkarAutoVideoMaker()
+                            }
                         }
                     }
 
