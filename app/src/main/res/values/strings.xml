@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CapCut</string>
+    <string name="app_name">NovaCut</string>
     <string name="cta_new_video">New video</string>
     <string name="cta_edit_photo">Edit photo</string>
     <string name="section_recent_projects">Recent projects</string>

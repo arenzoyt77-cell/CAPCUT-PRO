@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -32,6 +33,7 @@ import com.example.ui.screens.MainEditorScreen
 import com.example.ui.screens.MediaPickerScreen
 import com.example.ui.theme.CyanAccent
 import com.example.ui.theme.MyApplicationTheme
+import com.example.ui.theme.StudioBg
 import com.example.ui.theme.StudioElevated
 import com.example.ui.theme.TextPrimary
 import com.example.viewmodel.AppScreen
@@ -56,7 +58,11 @@ fun NovaCutAppRoot(viewModel: NovaCutViewModel) {
     val currentScreen by viewModel.currentScreen.collectAsStateWithLifecycle()
     val bannerMessage by viewModel.statusBannerMessage.collectAsStateWithLifecycle()
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(StudioBg)
+    ) {
         when (currentScreen) {
             AppScreen.HOME -> HomeAndTabsScreen(viewModel = viewModel)
             AppScreen.MEDIA_PICKER -> MediaPickerScreen(viewModel = viewModel)

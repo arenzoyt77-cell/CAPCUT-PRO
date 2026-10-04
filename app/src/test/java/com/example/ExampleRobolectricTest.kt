@@ -30,16 +30,16 @@ class ExampleRobolectricTest {
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @Test
-    fun appName_matchesCapCut() {
+    fun appName_matchesNovaCut() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val appName = context.getString(R.string.app_name)
-        assertEquals("CapCut", appName)
+        assertEquals("NovaCut", appName)
     }
 
     @Test
-    fun mainActivity_launchesDarkHomeScreenAndVerifiesAllSectionsAndNavigation() {
-        // 1. Verify Top Header
-        composeTestRule.onNodeWithTag("home_brand_title").assertIsDisplayed()
+    fun mainActivity_launchesDarkNovaCutHomeScreenAndVerifiesAllSectionsAndNavigation() {
+        // 1. Verify Top Header ("NovaCut", "PRO", "60fps Multi-Track NLE Engine", 4 action buttons)
+        composeTestRule.onNodeWithText("NovaCut").assertIsDisplayed()
         composeTestRule.onNodeWithText("PRO").assertIsDisplayed()
         composeTestRule.onNodeWithText("60fps Multi-Track NLE Engine").assertIsDisplayed()
         composeTestRule.onNodeWithTag("home_import_button").assertIsDisplayed()
@@ -47,7 +47,7 @@ class ExampleRobolectricTest {
         composeTestRule.onNodeWithTag("home_cloud_button").assertIsDisplayed()
         composeTestRule.onNodeWithTag("home_profile_button").assertIsDisplayed()
 
-        // 2. Verify Premium Create Panel
+        // 2. Verify Feature Badge & Main Create Area
         composeTestRule.onNodeWithText("KEYFRAMES • CURVES • 4K HDR").assertIsDisplayed()
         composeTestRule.onNodeWithText("Autosave Active").assertIsDisplayed()
         composeTestRule.onNodeWithTag("cta_new_video").assertIsDisplayed()
@@ -70,11 +70,16 @@ class ExampleRobolectricTest {
 
         // 4. Verify Recent Projects Carousel
         composeTestRule.onNodeWithTag("recent_projects_header").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Project Oct 03 20:11").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Recent projects (6)").assertIsDisplayed()
         composeTestRule.onNodeWithText("Bass Shake Montage").assertIsDisplayed()
         composeTestRule.onNodeWithText("Manage All →").assertIsDisplayed()
 
-        // 5. Verify Fixed Bottom Navigation (Edit, Template, AI Lab, Projects, Inbox, Me)
+        // 5. Verify Continue Editing Section
+        composeTestRule.onNodeWithText("Continue editing").assertIsDisplayed()
+        composeTestRule.onNodeWithText("LATEST DRAFT").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("continue_editing_featured_card").assertIsDisplayed()
+
+        // 6. Verify Fixed Bottom Navigation (Edit, Template, AI Lab, Projects, Inbox, Me)
         composeTestRule.onNodeWithTag("nav_tab_edit").assertIsDisplayed()
         composeTestRule.onNodeWithTag("nav_tab_templates").assertIsDisplayed()
         composeTestRule.onNodeWithText("Template").assertIsDisplayed()
@@ -83,7 +88,7 @@ class ExampleRobolectricTest {
         composeTestRule.onNodeWithTag("nav_tab_inbox").assertIsDisplayed()
         composeTestRule.onNodeWithTag("nav_tab_me").assertIsDisplayed()
 
-        // 6. Test Bottom Navigation switching
+        // 7. Test Bottom Navigation switching
         composeTestRule.onNodeWithTag("nav_tab_templates").performClick()
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("Neon Velocity Beat Sync").assertIsDisplayed()
@@ -91,7 +96,7 @@ class ExampleRobolectricTest {
         composeTestRule.onNodeWithTag("nav_tab_edit").performClick()
         composeTestRule.waitForIdle()
 
-        // 7. Navigate: HOME -> New Video -> Media Picker -> Editor
+        // 8. Navigate: HOME -> New Video -> Media Picker -> Editor
         composeTestRule.onNodeWithTag("cta_new_video").performClick()
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("Select Media").assertIsDisplayed()

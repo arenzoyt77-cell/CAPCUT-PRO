@@ -1847,15 +1847,15 @@ class NovaCutViewModel(application: Application) : AndroidViewModel(application)
         private fun defaultInboxNotifications(): List<StudioNotification> = listOf(
             StudioNotification(
                 id = "notif_1",
-                title = "CapCut 60fps Keyframe & Velocity Engine",
+                title = "NovaCut 60fps Keyframe & Velocity Engine",
                 message = "Cubic Bezier & Smoothstep interpolation now available for Position, Scale, Rotation, Opacity, and Filter Intensity.",
-                category = "CapCut Update",
+                category = "NovaCut Update",
                 timestampLabel = "Just now",
                 isUnread = true
             ),
             StudioNotification(
                 id = "notif_2",
-                title = "New CapCut Viral Effects & Cinema Filters",
+                title = "New Viral Effects & Cinema Filters",
                 message = "Try Chromatic Blur, Halo Blur, Diamond Zoom, Black Flash, Edge Glow, 3D Zoom Pro, Teal & Orange, and Oppenheimer LUTs.",
                 category = "Effects & Filters",
                 timestampLabel = "2h ago",
@@ -1863,15 +1863,15 @@ class NovaCutViewModel(application: Application) : AndroidViewModel(application)
             ),
             StudioNotification(
                 id = "notif_3",
-                title = "CapCut Velocity & AutoCut Templates",
-                message = "Explore 15 one-tap CapCut templates including Neon Velocity Beat Sync, Bass Shake Montage, and Flash Cut Fashion Reel.",
+                title = "Velocity & AutoCut Templates",
+                message = "Explore 15 one-tap templates including Neon Velocity Beat Sync, Bass Shake Montage, and Flash Cut Fashion Reel.",
                 category = "Templates",
                 timestampLabel = "Yesterday",
                 isUnread = false
             ),
             StudioNotification(
                 id = "notif_4",
-                title = "CapCut Cloud & Local SQLite Autosave",
+                title = "Cloud & Local SQLite Autosave",
                 message = "Every timeline cut, keyframe, and color grade is automatically persisted to your local SQLite project database.",
                 category = "System",
                 timestampLabel = "2d ago",

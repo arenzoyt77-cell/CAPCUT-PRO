@@ -185,9 +185,9 @@ fun HomeAndTabsScreen(viewModel: NovaCutViewModel) {
                                 )
                             },
                             colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = Color(0xFF04080E),
+                                selectedIconColor = CyanAccent,
                                 selectedTextColor = CyanAccent,
-                                indicatorColor = CyanAccent,
+                                indicatorColor = CyanAccent.copy(alpha = 0.20f),
                                 unselectedIconColor = Color(0xFF7D8799),
                                 unselectedTextColor = Color(0xFF7D8799)
                             )
@@ -330,7 +330,7 @@ private fun HomeTopBar(
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "CapCut",
+                        text = "NovaCut",
                         style = MaterialTheme.typography.titleLarge,
                         color = TextPrimary,
                         fontWeight = FontWeight.Bold,
@@ -440,8 +440,8 @@ private fun HomeEditDashboard(
         modifier = Modifier
             .fillMaxSize()
             .testTag("home_dashboard_list"),
-        contentPadding = PaddingValues(top = 6.dp, bottom = 28.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        contentPadding = PaddingValues(top = 4.dp, bottom = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         // =====================================================================
         // 1. HERO / CREATE SECTION (Dark Premium Hero Card)
@@ -479,12 +479,12 @@ private fun HomeEditDashboard(
                             alpha = 0.28f,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(168.dp)
+                                .height(154.dp)
                         )
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(168.dp)
+                                .height(154.dp)
                                 .background(
                                     Brush.verticalGradient(
                                         colors = listOf(
@@ -499,7 +499,7 @@ private fun HomeEditDashboard(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(14.dp)
+                                .padding(12.dp)
                         ) {
                             // Technical feature strip + Autosave Active status
                             Row(
@@ -520,7 +520,7 @@ private fun HomeEditDashboard(
                                         text = "KEYFRAMES • CURVES • 4K HDR",
                                         style = MaterialTheme.typography.labelSmall,
                                         color = CyanAccent,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                                     )
                                 }
 
@@ -540,7 +540,7 @@ private fun HomeEditDashboard(
                                 }
                             }
 
-                            Spacer(modifier = Modifier.height(12.dp))
+                            Spacer(modifier = Modifier.height(10.dp))
 
                             // Main Dark Action Cards: New video (Primary Highlighted) & Edit photo
                             Row(
@@ -692,18 +692,6 @@ private fun HomeEditDashboard(
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
-        }
-
-        val additionalProjects = projects.drop(1)
-        items(additionalProjects, key = { "row_${it.id}" }) { proj ->
-            ProjectDetailRowCard(
-                project = proj,
-                onOpen = { onOpenProject(proj) },
-                onRename = { onRenameProject(proj) },
-                onDuplicate = { onDuplicateProject(proj) },
-                onDelete = { onDeleteProject(proj) },
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
         }
     }
 }
@@ -883,7 +871,7 @@ private fun StudioToolkitCompactButton(
                 scaleX = scale
                 scaleY = scale
             }
-            .height(48.dp)
+            .height(46.dp)
             .border(1.dp, Color(0xFF1D2536), RoundedCornerShape(12.dp))
             .clip(RoundedCornerShape(12.dp))
             .clickable(
@@ -896,28 +884,31 @@ private fun StudioToolkitCompactButton(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 9.dp),
+                .padding(horizontal = 7.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(28.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    .size(25.dp)
+                    .clip(RoundedCornerShape(7.dp))
                     .background(tool.tint.copy(alpha = 0.15f))
-                    .border(0.5.dp, tool.tint.copy(alpha = 0.35f), RoundedCornerShape(8.dp)),
+                    .border(0.5.dp, tool.tint.copy(alpha = 0.35f), RoundedCornerShape(7.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = tool.icon,
                     contentDescription = tool.label,
                     tint = tool.tint,
-                    modifier = Modifier.size(15.dp)
+                    modifier = Modifier.size(14.dp)
                 )
             }
-            Spacer(modifier = Modifier.width(7.dp))
+            Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = tool.label,
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontSize = 11.sp,
+                    letterSpacing = (-0.2).sp
+                ),
                 color = TextPrimary,
                 fontWeight = FontWeight.Medium,
                 maxLines = 1,
@@ -1497,13 +1488,13 @@ private fun AiLabStudioTab(onRunAiTool: (String) -> Unit) {
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "CAPCUT AI LAB • SMART WORKFLOWS",
+                        text = "NOVACUT AI LAB • SMART WORKFLOWS",
                         style = MaterialTheme.typography.labelSmall,
                         color = CyanAccent
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Accelerate editing with CapCut Auto Captions, Smart Cutout, Auto Reframe, and Velocity Restyle. The CapCut multi-track NLE editor gives you 100% manual control.",
+                        text = "Accelerate editing with NovaCut Auto Captions, Smart Cutout, Auto Reframe, and Velocity Restyle. The NovaCut multi-track NLE editor gives you 100% manual control.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = TextPrimary
                     )
@@ -1584,7 +1575,7 @@ private fun ProjectsManagerTab(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("CapCut Cloud & Local Projects", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
+                    Text("NovaCut Cloud & Local Projects", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
                     Text("${projects.size} saved timelines • Real-time SQLite Autosave", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
                 }
                 Button(
@@ -1630,7 +1621,7 @@ private fun InboxTab(viewModel: NovaCutViewModel) {
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            Text("CapCut Inbox & Creator Updates", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
+            Text("NovaCut Inbox & Creator Updates", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
         }
         items(notifications, key = { it.id }) { notif ->
             Surface(
@@ -1680,7 +1671,7 @@ private fun MeSettingsTab(viewModel: NovaCutViewModel) {
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            Text("CapCut Pro Engine & Preferences", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
+            Text("NovaCut Pro Engine & Preferences", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
             Text("Configure hardware decoding, proxy preview & autosave", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
         }
 
@@ -1800,7 +1791,7 @@ fun GlobalSearchDialog(
         onDismissRequest = onDismiss,
         containerColor = StudioSurface,
         title = {
-            Text("Search CapCut", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
+            Text("Search NovaCut", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
         },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {

@@ -1,6 +1,6 @@
 {
-  "name": "CapCut",
-  "description": "All-in-one video editing app with multi-track timeline, CapCut video effects, filters, speed curves, keyframe animation, auto captions, templates, and 4K 60fps export.",
+  "name": "NovaCut",
+  "description": "Professional 60fps multi-track mobile video editor with keyframe animation, speed curves, GPU LUT filters, effects, auto captions, templates, and 4K HDR export.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

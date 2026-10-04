@@ -977,7 +977,7 @@ object EffectFilterTransitionCatalog {
     }
 
     /**
-     * Builds the 5 default CapCut projects shown in the Home screen recent project strip and Projects tab.
+     * Builds the 6 default studio projects shown in the Home screen recent project strip and Projects tab.
      */
     fun buildDefaultSeedProjects(): List<VideoProject> {
         val now = System.currentTimeMillis()
@@ -1029,13 +1029,45 @@ object EffectFilterTransitionCatalog {
             audioClips = listOf(
                 AudioClip(
                     title = "Cybernetic Horizon (128 BPM)",
-                    artistOrSource = "CapCut Sound Studio",
+                    artistOrSource = "NovaCut Sound Studio",
                     builtInSynthId = "synth_cyber_pulse",
                     category = AudioCategory.MUSIC,
                     timelineStartMs = 0L,
                     durationMs = 8000L,
                     waveform = audioPresets.first().waveform,
                     beatMarkersMs = audioPresets.first().beatMarkersMs.filter { it < 8000L }
+                )
+            ),
+            textClips = listOf(
+                TextClip(
+                    text = "NIGHT VELOCITY // 4K",
+                    timelineStartMs = 200L,
+                    durationMs = 4200L,
+                    fontFamilyId = "space_grotesk",
+                    fontSizeSp = 26f,
+                    textColorHex = 0xFFFFFFFFL,
+                    stylePresetId = "neon_cyber"
+                ),
+                TextClip(
+                    text = "ANAMORPHIC MASTER GRADE",
+                    isCaption = true,
+                    timelineStartMs = 600L,
+                    durationMs = 5000L,
+                    fontFamilyId = "jetbrains_mono",
+                    fontSizeSp = 15f,
+                    textColorHex = 0xFF00E5FFL,
+                    stylePresetId = "mono_timecode"
+                )
+            ),
+            effectItems = listOf(
+                EffectTrackItem(
+                    effectDefId = "chromatic_aberration",
+                    effectName = "Chromatic Blur",
+                    category = "Trending",
+                    timelineStartMs = 0L,
+                    durationMs = 5000L,
+                    intensity = 0.78f,
+                    speed = 0.55f
                 )
             ),
             coverDrawableRes = R.drawable.img_sample_cyberpunk,
@@ -1046,6 +1078,7 @@ object EffectFilterTransitionCatalog {
         val cyberBeatTpl = findTemplate("tpl_cyber_beat") ?: templates[0]
         val portraitReelTpl = findTemplate("tpl_portrait_reel") ?: templates[2]
         val alpineCinemaTpl = findTemplate("tpl_alpine_cinema") ?: templates[1]
+        val photo3dTpl = findTemplate("tpl_photo_3d") ?: templates[7]
 
         val projBassShake = buildProjectFromTemplate(bassShakeTpl).copy(
             id = "seed_proj_2",
@@ -1075,7 +1108,14 @@ object EffectFilterTransitionCatalog {
             createdAtMs = now - 10800_000L,
             updatedAtMs = now - 3600_000L
         )
+        val projPhoto3d = buildProjectFromTemplate(photo3dTpl).copy(
+            id = "seed_proj_6",
+            name = "3D Zoom Pro Photo Dump",
+            coverDrawableRes = R.drawable.img_sample_portrait,
+            createdAtMs = now - 14400_000L,
+            updatedAtMs = now - 4800_000L
+        )
 
-        return listOf(projOct03, projBassShake, projCyber, projPortrait, projAlpine)
+        return listOf(projOct03, projBassShake, projCyber, projPortrait, projAlpine, projPhoto3d)
     }
 }

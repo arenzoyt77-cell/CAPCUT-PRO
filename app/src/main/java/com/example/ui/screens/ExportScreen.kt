@@ -123,7 +123,7 @@ fun ExportScreen(viewModel: NovaCutViewModel) {
             ) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back to editor", tint = TextPrimary)
             }
-            Text("CapCut Export Master", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
+            Text("NovaCut Export Master", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
             Spacer(modifier = Modifier.width(40.dp))
         }
 

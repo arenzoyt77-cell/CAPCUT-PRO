@@ -64,7 +64,7 @@ interface ProjectDao {
     suspend fun renameProject(id: String, newName: String, updatedAtMs: Long)
 }
 
-@Database(entities = [ProjectEntity::class], version = 5, exportSchema = false)
+@Database(entities = [ProjectEntity::class], version = 6, exportSchema = false)
 abstract class ProjectDatabase : RoomDatabase() {
     abstract fun projectDao(): ProjectDao
 
@@ -77,7 +77,7 @@ abstract class ProjectDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     ProjectDatabase::class.java,
-                    "novacut_projects.db"
+                    "novacut_studio_v6.db"
                 ).fallbackToDestructiveMigration(true).build()
                 INSTANCE = instance
                 instance
