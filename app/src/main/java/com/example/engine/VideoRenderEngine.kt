@@ -50,6 +50,13 @@ object VideoRenderEngine {
     )
 
     /**
+     * Computes the effective timeline duration of a single clip in milliseconds.
+     */
+    fun computeClipEffectiveDurationMs(clip: TimelineClip): Long {
+        return KeyframeAndSpeedEngine.computeEffectiveClipDurationMs(clip)
+    }
+
+    /**
      * Computes the exact timeline windows for all primary track clips.
      */
     fun computePrimaryTrackSchedule(clips: List<TimelineClip>): List<PrimaryTrackWindow> {
@@ -363,23 +370,38 @@ object VideoRenderEngine {
     ) {
         val bmp = bitmapLookup(clip) ?: return
         val effDuration = KeyframeAndSpeedEngine.computeEffectiveClipDurationMs(clip)
-        val sourceMs = KeyframeAndSpeedEngine.mapTimelineOffsetToSourceMs(clip, clipLocalMs)
         val kfState = KeyframeAndSpeedEngine.evaluateClipStateAt(clip, clipLocalMs)
+        val canonicalTransform = OmkarAutoVideoEngine.TransformEngine.evaluateClipTransform(clip, clipLocalMs)
 
         // Compute In / Out / Loop Animation offsets
         val animMod = evaluateAnimationOffsets(clip.animation, clipLocalMs, effDuration)
-
-        // Compute subtle continuous video motion so sample footage moves like real 60fps video
-        val motionProgress = if (clip.isPhoto || clip.isFrozen) 0f else {
-            ((sourceMs % 10000L).toFloat() / 10000f)
-        }
-        val organicPanX = if (clip.isPhoto || clip.isFrozen) 0f else sin(motionProgress * 2f * PI.toFloat()) * 0.025f
-        val organicZoom = if (clip.isPhoto || clip.isFrozen) 1f else 1.03f + 0.03f * sin(motionProgress * PI.toFloat())
 
         val totalAlpha = (kfState.opacity * animMod.alpha * extraAlphaMultiplier).coerceIn(0f, 1f)
         if (totalAlpha <= 0.01f) return
 
         val saveCount = canvas.saveLayer(0f, 0f, width, height, null)
+
+        val baseFitScale = if (isOverlayLayer) {
+            min(width / bmp.width.toFloat(), height / bmp.height.toFloat()) * 0.55f
+        } else {
+            min(width / bmp.width.toFloat(), height / bmp.height.toFloat())
+        }
+
+        val fitW = bmp.width * baseFitScale
+        val fitH = bmp.height * baseFitScale
+        val fitLeft = (width - fitW) / 2f
+        val fitTop = (height - fitH) / 2f
+
+        val finalRotation = if (clip.isAutoSplitClip) {
+            0f
+        } else {
+            canonicalTransform.rotationDegrees + animMod.rotation + extraRotationDeg
+        }
+
+        // Clip primary video frame strictly to its canonical aspect-ratio rectangle so zoom never distorts outer frame bounds
+        if (!isOverlayLayer && abs(finalRotation) < 0.01f) {
+            canvas.clipRect(fitLeft, fitTop, fitLeft + fitW, fitTop + fitH)
+        }
 
         // Apply Crop / Mask clipping path
         val cropL = width * kfState.cropLeft
@@ -394,23 +416,38 @@ object VideoRenderEngine {
             applyMaskPath(canvas, width, height, clip.mask)
         }
 
-        val cx = width * (0.5f + (kfState.posX + animMod.offsetX + organicPanX) * 0.45f) + extraTranslateX
-        val cy = height * (0.5f + (kfState.posY + animMod.offsetY) * 0.45f) + extraTranslateY
+        val requestedScale = canonicalTransform.uniformScale * animMod.scale * extraScaleMultiplier
+        val requestedPosX = canonicalTransform.posX + animMod.offsetX
+        val requestedPosY = canonicalTransform.posY + animMod.offsetY
 
-        val baseFitScale = if (isOverlayLayer) {
-            min(width / bmp.width.toFloat(), height / bmp.height.toFloat()) * 0.55f
+        val safeTransform = if (!isOverlayLayer && abs(finalRotation) < 0.01f && requestedScale >= 1.0f) {
+            OmkarAutoVideoEngine.CropProtectionEngine.clampTransform(
+                requestedScale = requestedScale,
+                requestedPosX = requestedPosX,
+                requestedPosY = requestedPosY
+            )
         } else {
-            min(width / bmp.width.toFloat(), height / bmp.height.toFloat())
+            canonicalTransform.copy(
+                uniformScale = requestedScale.coerceAtLeast(0.1f),
+                scaleX = requestedScale.coerceAtLeast(0.1f),
+                scaleY = requestedScale.coerceAtLeast(0.1f),
+                posX = requestedPosX,
+                posY = requestedPosY
+            )
         }
 
-        val finalScaleX = baseFitScale * kfState.scale * animMod.scale * organicZoom * extraScaleMultiplier * (if (clip.mirrorH) -1f else 1f)
-        val finalScaleY = baseFitScale * kfState.scale * animMod.scale * organicZoom * extraScaleMultiplier * (if (clip.mirrorV) -1f else 1f)
-        val finalRotation = kfState.rotation + animMod.rotation + extraRotationDeg
+        val cx = width * 0.5f + (safeTransform.posX * fitW) + extraTranslateX
+        val cy = height * 0.5f + (safeTransform.posY * fitH) + extraTranslateY
+
+        val finalScaleX = baseFitScale * safeTransform.scaleX * (if (clip.mirrorH) -1f else 1f)
+        val finalScaleY = baseFitScale * safeTransform.scaleY * (if (clip.mirrorV) -1f else 1f)
 
         val matrix = Matrix().apply {
             postTranslate(-bmp.width * clip.anchorX, -bmp.height * clip.anchorY)
             postScale(finalScaleX, finalScaleY)
-            postRotate(finalRotation)
+            if (abs(finalRotation) >= 0.001f) {
+                postRotate(finalRotation)
+            }
             postTranslate(cx, cy)
         }
 

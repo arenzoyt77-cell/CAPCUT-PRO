@@ -9,8 +9,12 @@ import com.example.data.ProjectRepository
 import com.example.engine.EffectFilterTransitionCatalog
 import com.example.engine.KeyframeAndSpeedEngine
 import com.example.engine.MediaAndExportEngine
+import com.example.engine.OmkarAutoVideoEngine
 import com.example.engine.VideoRenderEngine
 import com.example.model.AspectRatioMode
+import com.example.model.AutomaticMotionMode
+import com.example.model.CapCutDraftExportResult
+import com.example.model.ZoomDirection
 import com.example.model.AudioCategory
 import com.example.model.AudioClip
 import com.example.model.BlendModeType
@@ -214,6 +218,19 @@ class NovaCutViewModel(application: Application) : AndroidViewModel(application)
 
     private val _exportProgress = MutableStateFlow(ExportProgressState())
     val exportProgress: StateFlow<ExportProgressState> = _exportProgress.asStateFlow()
+
+    // Omkar Automatic Video Maker State
+    private val _autoEditSummary = MutableStateFlow("")
+    val autoEditSummary: StateFlow<String> = _autoEditSummary.asStateFlow()
+
+    private val _capCutDraftExportResult = MutableStateFlow<CapCutDraftExportResult?>(null)
+    val capCutDraftExportResult: StateFlow<CapCutDraftExportResult?> = _capCutDraftExportResult.asStateFlow()
+
+    private val _customSpeechTranscript = MutableStateFlow("")
+    val customSpeechTranscript: StateFlow<String> = _customSpeechTranscript.asStateFlow()
+
+    private val _autoGenerateCaptions = MutableStateFlow(true)
+    val autoGenerateCaptions: StateFlow<Boolean> = _autoGenerateCaptions.asStateFlow()
 
     // Preferences & Inbox State
     private val _proxyPreviewEnabled = MutableStateFlow(true)
@@ -460,46 +477,72 @@ class NovaCutViewModel(application: Application) : AndroidViewModel(application)
 
     fun importSystemPickedUris(uris: List<String>) {
         if (uris.isEmpty()) return
+        val app = getApplication<Application>()
         val importedModels = uris.mapIndexed { idx, uriStr ->
-            val isVid = uriStr.contains("video", ignoreCase = true)
+            val isPhoto = uriStr.contains("image", ignoreCase = true) || uriStr.endsWith(".jpg", true) || uriStr.endsWith(".png", true)
+            val isVid = !isPhoto
+            val geometry = if (isVid) {
+                OmkarAutoVideoEngine.VideoMetadataReader.readSourceGeometry(
+                    context = app,
+                    mediaUri = uriStr,
+                    fallbackWidth = 1080,
+                    fallbackHeight = 1920,
+                    fallbackDurationMs = 12000L,
+                    fallbackFps = 30f
+                )
+            } else {
+                OmkarAutoVideoEngine.VideoMetadataReader.createCanonicalGeometry(
+                    rawWidth = 1080,
+                    rawHeight = 1920,
+                    durationMs = 4000L
+                )
+            }
             MediaItemModel(
                 id = "picked_${System.currentTimeMillis()}_$idx",
                 title = if (isVid) "Imported_Video_${idx + 1}.mp4" else "Imported_Photo_${idx + 1}.jpg",
                 albumName = "Imported",
                 tabCategory = MediaAlbumCategory.ALBUMS,
                 isVideo = isVid,
-                durationMs = if (isVid) 7000L else 4000L,
-                width = 1920,
-                height = 1080,
+                durationMs = geometry.durationMs,
+                width = geometry.displayWidth,
+                height = geometry.displayHeight,
                 uriString = uriStr,
                 drawableRes = R.drawable.img_sample_cyberpunk,
                 accentHex = 0xFF00E5FFL,
-                isHd = true,
-                fileSizeMb = 12.5f
+                isHd = maxOf(geometry.displayWidth, geometry.displayHeight) >= 1080,
+                fileSizeMb = geometry.fileSizeMb
             )
         }
         _mediaCatalog.value = importedModels + _mediaCatalog.value
         _selectedMediaItems.value = _selectedMediaItems.value + importedModels
-        showToastMessage("Imported ${importedModels.size} media item(s)")
+        showToastMessage("Imported ${importedModels.size} media item(s) • Geometry preserved")
     }
 
     fun confirmMediaPickerSelection() {
         val chosen = _selectedMediaItems.value.ifEmpty {
             listOf(_mediaCatalog.value.first())
         }
+        val app = getApplication<Application>()
         when (_pickerPurpose.value) {
             MediaPickerPurpose.NEW_PROJECT_VIDEO, MediaPickerPurpose.NEW_PROJECT_PHOTO -> {
+                val firstMedia = chosen.first()
+                val sourceGeometry = OmkarAutoVideoEngine.VideoMetadataReader.readSourceGeometry(
+                    context = app,
+                    mediaUri = firstMedia.uriString,
+                    fallbackWidth = firstMedia.width.takeIf { it > 0 } ?: 1080,
+                    fallbackHeight = firstMedia.height.takeIf { it > 0 } ?: 1920,
+                    fallbackDurationMs = firstMedia.durationMs.takeIf { it > 0L } ?: 10000L,
+                    fallbackFps = 30f
+                )
                 val clips = chosen.mapIndexed { idx, media ->
-                    mediaToTimelineClip(media, isOverlay = false, index = idx)
-                }
-                val firstAspect = if (chosen.first().height > chosen.first().width) {
-                    AspectRatioMode.RATIO_9_16
-                } else {
-                    AspectRatioMode.RATIO_16_9
+                    mediaToTimelineClip(media, isOverlay = false, index = idx).copy(
+                        sourceGeometry = sourceGeometry
+                    )
                 }
                 val newProj = VideoProject(
                     name = "Project ${java.text.SimpleDateFormat("MMM dd HH:mm", java.util.Locale.US).format(java.util.Date())}",
-                    aspectRatio = firstAspect,
+                    aspectRatio = sourceGeometry.canonicalAspectRatioMode,
+                    sourceGeometry = sourceGeometry,
                     primaryClips = clips,
                     audioClips = listOf(
                         EffectFilterTransitionCatalog.audioPresets.first().let { preset ->
@@ -519,14 +562,38 @@ class NovaCutViewModel(application: Application) : AndroidViewModel(application)
                 openProjectInEditor(newProj, EditorToolTab.EDIT)
             }
             MediaPickerPurpose.AUTOCUT_TEMPLATE -> {
-                val drawables = chosen.map { it.drawableRes }
-                val tpl = EffectFilterTransitionCatalog.templates.first()
-                val newProj = EffectFilterTransitionCatalog.buildProjectFromTemplate(tpl, drawables).copy(
-                    name = "AutoCut • ${chosen.size} Clips"
+                val firstMedia = chosen.first()
+                val sourceGeometry = OmkarAutoVideoEngine.VideoMetadataReader.readSourceGeometry(
+                    context = app,
+                    mediaUri = firstMedia.uriString,
+                    fallbackWidth = firstMedia.width.takeIf { it > 0 } ?: 1080,
+                    fallbackHeight = firstMedia.height.takeIf { it > 0 } ?: 1920,
+                    fallbackDurationMs = firstMedia.durationMs.takeIf { it > 0L } ?: 12000L,
+                    fallbackFps = 30f
                 )
-                viewModelScope.launch { repository.saveProject(newProj) }
-                openProjectInEditor(newProj, EditorToolTab.EDIT)
-                showToastMessage("AutoCut synced ${chosen.size} clips with beat transitions & keyframes")
+                val baseClip = mediaToTimelineClip(firstMedia, isOverlay = false, index = 0).copy(
+                    transitionAfter = TransitionConfig(transitionId = "none", durationMs = 0L),
+                    sourceGeometry = sourceGeometry
+                )
+                val seedProj = VideoProject(
+                    name = "Omkar Auto • ${firstMedia.title.substringBeforeLast(".")}",
+                    aspectRatio = sourceGeometry.canonicalAspectRatioMode,
+                    sourceGeometry = sourceGeometry,
+                    primaryClips = listOf(baseClip),
+                    coverDrawableRes = firstMedia.drawableRes
+                )
+                val autoResult = OmkarAutoVideoEngine.executeAutomaticEditPipeline(
+                    context = app,
+                    project = seedProj,
+                    motionMode = AutomaticMotionMode.SIMPLE,
+                    targetZoomFactor = OmkarAutoVideoEngine.DEFAULT_AUTO_ZOOM,
+                    customTranscript = _customSpeechTranscript.value,
+                    generateSyncedCaptions = _autoGenerateCaptions.value
+                )
+                _autoEditSummary.value = autoResult.summaryMessage
+                viewModelScope.launch { repository.saveProject(autoResult.updatedProject) }
+                openProjectInEditor(autoResult.updatedProject, EditorToolTab.EDIT)
+                showToastMessage(autoResult.summaryMessage)
             }
             MediaPickerPurpose.ADD_PRIMARY_CLIP -> {
                 val addedClips = chosen.mapIndexed { idx, m -> mediaToTimelineClip(m, isOverlay = false, index = idx) }
@@ -852,19 +919,42 @@ class NovaCutViewModel(application: Application) : AndroidViewModel(application)
         val sourceSplitMs = KeyframeAndSpeedEngine.mapTimelineOffsetToSourceMs(clip, localOffsetMs)
             .coerceIn(clip.trimStartMs + 200L, clip.trimEndMs - 200L)
 
+        val leftDurationMs = (sourceSplitMs - clip.trimStartMs).coerceAtLeast(200L)
+        val rightDurationMs = (clip.trimEndMs - sourceSplitMs).coerceAtLeast(200L)
+
+        val leftKeyframes = if (clip.isAutoSplitClip) {
+            OmkarAutoVideoEngine.KeyframeGenerator.generateClipKeyframes(
+                clipDurationMs = leftDurationMs,
+                zoomDirection = clip.zoomDirection,
+                targetZoomFactor = proj.autoZoomTargetFactor
+            )
+        } else {
+            clip.keyframes.filter { it.timestampMs <= localOffsetMs }
+        }
+
+        val rightKeyframes = if (clip.isAutoSplitClip) {
+            OmkarAutoVideoEngine.KeyframeGenerator.generateClipKeyframes(
+                clipDurationMs = rightDurationMs,
+                zoomDirection = clip.zoomDirection,
+                targetZoomFactor = proj.autoZoomTargetFactor
+            )
+        } else {
+            clip.keyframes
+                .filter { it.timestampMs >= localOffsetMs }
+                .map { it.copy(id = UUID.randomUUID().toString(), timestampMs = (it.timestampMs - localOffsetMs).coerceAtLeast(0L)) }
+        }
+
         val leftClip = clip.copy(
             id = UUID.randomUUID().toString(),
             title = "${clip.title} A",
             trimEndMs = sourceSplitMs,
-            keyframes = clip.keyframes.filter { it.timestampMs <= localOffsetMs }
+            keyframes = leftKeyframes
         )
         val rightClip = clip.copy(
             id = UUID.randomUUID().toString(),
             title = "${clip.title} B",
             trimStartMs = sourceSplitMs,
-            keyframes = clip.keyframes
-                .filter { it.timestampMs >= localOffsetMs }
-                .map { it.copy(id = UUID.randomUUID().toString(), timestampMs = (it.timestampMs - localOffsetMs).coerceAtLeast(0L)) }
+            keyframes = rightKeyframes
         )
 
         val newPrimary = proj.primaryClips.toMutableList().apply {
@@ -1764,6 +1854,196 @@ class NovaCutViewModel(application: Application) : AndroidViewModel(application)
             currentStage = "Export cancelled"
         )
         showToastMessage("Export cancelled")
+    }
+
+    // =========================================================================
+    // OMKAR AUTOMATIC VIDEO MAKER ENGINE ACTIONS
+    // =========================================================================
+
+    fun setCustomSpeechTranscript(script: String) {
+        _customSpeechTranscript.value = script
+    }
+
+    fun toggleAutoGenerateCaptions() {
+        _autoGenerateCaptions.value = !_autoGenerateCaptions.value
+    }
+
+    /**
+     * Runs the complete Omkar Automatic Video Maker speech-analysis, sentence-segmentation,
+     * frame-aligned splitting, and start (100%) -> end (106%..114%) keyframe generation pipeline.
+     */
+    fun runOmkarAutoVideoMaker(
+        motionMode: AutomaticMotionMode = _activeProject.value.automaticMotionMode,
+        targetZoomFactor: Float = _activeProject.value.autoZoomTargetFactor,
+        customTranscript: String = _customSpeechTranscript.value
+    ) {
+        pausePlayback()
+        val result = OmkarAutoVideoEngine.executeAutomaticEditPipeline(
+            context = getApplication(),
+            project = _activeProject.value,
+            motionMode = motionMode,
+            targetZoomFactor = targetZoomFactor,
+            customTranscript = customTranscript,
+            generateSyncedCaptions = _autoGenerateCaptions.value
+        )
+        commitProjectMutation(result.updatedProject)
+        _selectedClipId.value = result.updatedProject.primaryClips.firstOrNull()?.id
+        _playheadMs.value = 0L
+        _autoEditSummary.value = result.summaryMessage
+        showToastMessage(result.summaryMessage)
+    }
+
+    /**
+     * Switches between Simple Motion (100% -> targetZoom) and Smart Motion (context-aware Zoom In/Out/Drift)
+     * across all split clips while preserving sacred geometry.
+     */
+    fun setAutomaticMotionMode(mode: AutomaticMotionMode) {
+        val proj = _activeProject.value
+        if (proj.primaryClips.size <= 1 && proj.detectedSpeechSegments.isEmpty()) {
+            runOmkarAutoVideoMaker(motionMode = mode, targetZoomFactor = proj.autoZoomTargetFactor)
+            return
+        }
+        val updated = OmkarAutoVideoEngine.updateAutoKeyframesOnClips(
+            project = proj,
+            motionMode = mode,
+            targetZoomFactor = proj.autoZoomTargetFactor
+        )
+        commitProjectMutation(updated)
+        val zoomPct = (proj.autoZoomTargetFactor * 100f).toInt()
+        val msg = "Motion Mode: ${mode.label} (Start 100% → End $zoomPct%)"
+        _autoEditSummary.value = msg
+        showToastMessage(msg)
+    }
+
+    /**
+     * Adjusts the automatic end keyframe zoom factor (1.00f for Identity Test, or 1.06f..1.14f for subtle zoom)
+     * and immediately updates all auto-split clip keyframes.
+     */
+    fun setAutoZoomTargetFactor(zoomFactor: Float) {
+        val safeZoom = if (zoomFactor <= 1.001f) 1.0f else zoomFactor.coerceIn(
+            OmkarAutoVideoEngine.MIN_AUTO_ZOOM,
+            OmkarAutoVideoEngine.MAX_AUTO_ZOOM
+        )
+        val proj = _activeProject.value
+        val updated = OmkarAutoVideoEngine.updateAutoKeyframesOnClips(
+            project = proj,
+            motionMode = proj.automaticMotionMode,
+            targetZoomFactor = safeZoom
+        )
+        commitProjectMutation(updated)
+        val zoomPct = (safeZoom * 100f).toInt()
+        _autoEditSummary.value = "Updated auto-keyframe zoom: Start 100% → End $zoomPct%"
+    }
+
+    /**
+     * Cycles the selected clip's zoom direction (Zoom In / Zoom Out / Subtle Move+Zoom / Static 100%)
+     * and regenerates its start and end keyframes.
+     */
+    fun cycleSelectedClipZoomDirection() {
+        val target = getSelectedOrActiveClip() ?: return
+        val nextDir = when (target.zoomDirection) {
+            ZoomDirection.ZOOM_IN -> ZoomDirection.ZOOM_OUT
+            ZoomDirection.ZOOM_OUT -> ZoomDirection.SUBTLE_DRIFT_IN
+            ZoomDirection.SUBTLE_DRIFT_IN -> ZoomDirection.STATIC_100
+            ZoomDirection.STATIC_100 -> ZoomDirection.ZOOM_IN
+        }
+        val dur = VideoRenderEngine.computeClipEffectiveDurationMs(target)
+        val newKeyframes = OmkarAutoVideoEngine.KeyframeGenerator.generateClipKeyframes(
+            clipDurationMs = dur,
+            zoomDirection = nextDir,
+            targetZoomFactor = _activeProject.value.autoZoomTargetFactor
+        )
+        mutateSelectedClip { clip ->
+            clip.copy(
+                zoomDirection = nextDir,
+                keyframes = newKeyframes,
+                isAutoSplitClip = true,
+                rotation = 0f,
+                transformX = 0f,
+                transformY = 0f
+            )
+        }
+        showToastMessage("${target.title}: ${nextDir.label}")
+    }
+
+    /**
+     * Removes the split point for the selected clip by merging it with its adjacent clip
+     * and regenerating clean start (100%) -> end keyframes across the merged duration.
+     */
+    fun removeSplitAndMergeSelectedClip() {
+        val proj = _activeProject.value
+        if (proj.primaryClips.size <= 1) {
+            showToastMessage("Only 1 clip on timeline — no split point to remove")
+            return
+        }
+        val selected = getSelectedOrActiveClip() ?: proj.primaryClips.last()
+        val idx = proj.primaryClips.indexOfFirst { it.id == selected.id }.coerceAtLeast(0)
+        val updated = OmkarAutoVideoEngine.removeSplitAndMergeClips(proj, idx)
+        commitProjectMutation(updated)
+        _selectedClipId.value = updated.primaryClips.getOrNull((idx - 1).coerceAtLeast(0))?.id
+        showToastMessage("Removed split & merged clips (${updated.primaryClips.size} scenes remaining)")
+    }
+
+    /**
+     * Restores the initial AI-generated automatic splits, keyframes, and motion values
+     * from [VideoProject.autoEditSnapshot] without re-importing the video.
+     */
+    fun resetAutomaticEdit() {
+        val proj = _activeProject.value
+        val snap = proj.autoEditSnapshot
+        if (snap != null) {
+            val nonCaptionTexts = proj.textClips.filterNot { it.isCaption }
+            val restored = proj.copy(
+                updatedAtMs = System.currentTimeMillis(),
+                aspectRatio = snap.sourceGeometry.canonicalAspectRatioMode,
+                sourceGeometry = snap.sourceGeometry,
+                automaticMotionMode = snap.motionMode,
+                autoZoomTargetFactor = snap.targetZoomFactor,
+                detectedSpeechSegments = snap.detectedSegments,
+                primaryClips = snap.generatedClips,
+                textClips = nonCaptionTexts + snap.generatedCaptions
+            )
+            commitProjectMutation(restored)
+            _selectedClipId.value = restored.primaryClips.firstOrNull()?.id
+            _playheadMs.value = 0L
+            val msg = "Reset Automatic Edit to initial ${snap.generatedClips.size} detected speech clips"
+            _autoEditSummary.value = msg
+            showToastMessage(msg)
+        } else {
+            runOmkarAutoVideoMaker(
+                motionMode = AutomaticMotionMode.SIMPLE,
+                targetZoomFactor = OmkarAutoVideoEngine.DEFAULT_AUTO_ZOOM
+            )
+        }
+    }
+
+    /**
+     * Exports a complete CapCut local draft (`draft_content.json` + `draft_meta_info.json` + `.zip`)
+     * containing all speech-split clips and start/end keyframes.
+     */
+    fun exportToCapCutDraft(autoShare: Boolean = false) {
+        viewModelScope.launch {
+            val app = getApplication<Application>()
+            val result = OmkarAutoVideoEngine.CapCutDraftExporter.exportCapCutDraft(
+                context = app,
+                project = _activeProject.value
+            )
+            _capCutDraftExportResult.value = result
+            showToastMessage(result.message)
+            if (autoShare && result.success && result.draftZipFilePath.isNotBlank()) {
+                OmkarAutoVideoEngine.CapCutDraftExporter.launchCapCutOrShareIntent(app, result.draftZipFilePath)
+            }
+        }
+    }
+
+    fun shareCapCutDraftOrMp4(filePath: String) {
+        val ok = OmkarAutoVideoEngine.CapCutDraftExporter.launchCapCutOrShareIntent(
+            context = getApplication(),
+            filePath = filePath
+        )
+        if (!ok) {
+            showToastMessage("Draft package saved at: $filePath")
+        }
     }
 
     // =========================================================================

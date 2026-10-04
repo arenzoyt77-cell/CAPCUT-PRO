@@ -79,6 +79,7 @@ fun ExportScreen(viewModel: NovaCutViewModel) {
     val project by viewModel.activeProject.collectAsStateWithLifecycle()
     val config by viewModel.exportConfig.collectAsStateWithLifecycle()
     val progress by viewModel.exportProgress.collectAsStateWithLifecycle()
+    val capCutDraftResult by viewModel.capCutDraftExportResult.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     val totalDurationMs = VideoRenderEngine.computeProjectTotalDurationMs(project)
@@ -276,7 +277,7 @@ fun ExportScreen(viewModel: NovaCutViewModel) {
                     }
                 }
 
-                // Start Export CTA
+                // Start Export CTA (MP4 Video)
                 item {
                     Button(
                         onClick = { viewModel.startExport() },
@@ -297,6 +298,81 @@ fun ExportScreen(viewModel: NovaCutViewModel) {
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
+                    }
+                }
+
+                // EXPORT TO CAPCUT (Draft JSON + Meta + Keyframes + Split Timeline)
+                item {
+                    OutlinedButton(
+                        onClick = { viewModel.exportToCapCutDraft(autoShare = false) },
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp)
+                            .border(1.2.dp, AudioEmerald, RoundedCornerShape(14.dp))
+                            .testTag("export_to_capcut_button")
+                    ) {
+                        Icon(Icons.Default.Share, contentDescription = null, tint = AudioEmerald)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "EXPORT TO CAPCUT (${project.primaryClips.size} Split Clips + Keyframes)",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = AudioEmerald,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                capCutDraftResult?.let { draftRes ->
+                    item {
+                        Surface(
+                            color = StudioCard,
+                            shape = RoundedCornerShape(14.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(
+                                    1.dp,
+                                    if (draftRes.success) AudioEmerald else KeyframeCrimson,
+                                    RoundedCornerShape(14.dp)
+                                )
+                                .testTag("capcut_draft_result_card")
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(14.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Text(
+                                    text = if (draftRes.success) "CapCut Draft Ready (draft_content.json + draft_meta_info.json)" else "CapCut Draft Error",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = if (draftRes.success) AudioEmerald else KeyframeCrimson,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = draftRes.message,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = TextPrimary
+                                )
+                                if (draftRes.success) {
+                                    Text(
+                                        text = "Directory: ${draftRes.draftDirectoryPath}",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = TextSecondary
+                                    )
+                                    Button(
+                                        onClick = { viewModel.shareCapCutDraftOrMp4(draftRes.draftZipFilePath) },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = AudioEmerald,
+                                            contentColor = StudioBg
+                                        ),
+                                        modifier = Modifier.testTag("share_capcut_draft_button")
+                                    ) {
+                                        Icon(Icons.Default.Share, contentDescription = null)
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text("Open / Share CapCut Draft (.zip)")
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

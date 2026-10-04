@@ -1059,7 +1059,11 @@ private fun TimeRulerRow(totalDurationMs: Long, dpPerSecond: Float) {
 @Composable
 private fun SelectedClipQuickActionStrip(viewModel: NovaCutViewModel) {
     val actions = listOf(
+        Triple("Auto Split", Icons.Default.AutoAwesome) { viewModel.runOmkarAutoVideoMaker() },
+        Triple("Reset Auto", Icons.Default.History) { viewModel.resetAutomaticEdit() },
+        Triple("Export CapCut", Icons.Default.IosShare) { viewModel.exportToCapCutDraft(autoShare = false) },
         Triple("Split", Icons.Default.ContentCut) { viewModel.splitClipAtPlayhead() },
+        Triple("Merge Split", Icons.AutoMirrored.Filled.MergeType) { viewModel.removeSplitAndMergeSelectedClip() },
         Triple("Trim -0.5s", Icons.Default.Timeline) { viewModel.trimSelectedClip(0L, -500L) },
         Triple("Trim +0.5s", Icons.Default.Timeline) { viewModel.trimSelectedClip(0L, 500L) },
         Triple("Delete", Icons.Default.DeleteOutline) { viewModel.deleteSelectedItem() },

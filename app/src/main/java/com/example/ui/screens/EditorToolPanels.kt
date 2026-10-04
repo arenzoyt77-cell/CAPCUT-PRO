@@ -62,7 +62,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.engine.EffectFilterTransitionCatalog
 import com.example.engine.KeyframeAndSpeedEngine
+import com.example.engine.OmkarAutoVideoEngine
 import com.example.model.AspectRatioMode
+import com.example.model.AutomaticMotionMode
 import com.example.model.BlendModeType
 import com.example.model.CanvasBackgroundType
 import com.example.model.CurveControlPoint
@@ -124,11 +126,176 @@ private fun EditClipInspectorPanel(
     clip: com.example.model.TimelineClip?
 ) {
     if (clip == null) return
+    val project by viewModel.activeProject.collectAsStateWithLifecycle()
+    val autoSummary by viewModel.autoEditSummary.collectAsStateWithLifecycle()
+    val capCutResult by viewModel.capCutDraftExportResult.collectAsStateWithLifecycle()
+    val effDur = KeyframeAndSpeedEngine.computeEffectiveClipDurationMs(clip)
+    val startTransform = OmkarAutoVideoEngine.TransformEngine.evaluateClipTransform(clip, 0L)
+    val endTransform = OmkarAutoVideoEngine.TransformEngine.evaluateClipTransform(clip, effDur)
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        // OMKAR AUTOMATIC VIDEO MAKER — SPEECH SPLIT & KEYFRAME CONTROL DECK
+        item {
+            Surface(
+                color = StudioCard,
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, CyanAccent.copy(alpha = 0.45f), RoundedCornerShape(12.dp))
+                    .testTag("omkar_auto_maker_card")
+            ) {
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "OMKAR AUTOMATIC VIDEO MAKER",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = CyanAccent,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Sacred Geometry: ${project.sourceGeometry.displayWidth}×${project.sourceGeometry.displayHeight} (${project.aspectRatio.label}) • Rot 0° • Uniform Scale",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = TextSecondary
+                            )
+                        }
+                        SmallActionButton(
+                            label = "Analyze & Auto Split",
+                            tint = CyanAccent
+                        ) {
+                            viewModel.runOmkarAutoVideoMaker()
+                        }
+                    }
+
+                    // Motion Mode + Quick Actions Row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        AutomaticMotionMode.entries.forEach { mode ->
+                            val isSelected = project.automaticMotionMode == mode
+                            Surface(
+                                color = if (isSelected) CyanAccent.copy(alpha = 0.22f) else StudioElevated,
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier
+                                    .border(
+                                        1.dp,
+                                        if (isSelected) CyanAccent else StudioBorder,
+                                        RoundedCornerShape(8.dp)
+                                    )
+                                    .clickable { viewModel.setAutomaticMotionMode(mode) }
+                                    .testTag("motion_mode_${mode.name.lowercase()}")
+                            ) {
+                                Text(
+                                    text = mode.label,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (isSelected) CyanAccent else TextPrimary,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.weight(1f))
+                        SmallActionButton("Reset Auto Edit", tint = TextAmber) {
+                            viewModel.resetAutomaticEdit()
+                        }
+                        SmallActionButton("Export to CapCut", tint = AudioEmerald) {
+                            viewModel.exportToCapCutDraft(autoShare = false)
+                        }
+                    }
+
+                    // Zoom Intensity Presets (100% Identity, 108%, 110%, 112%, 114%)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "End Zoom:",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = TextSecondary
+                        )
+                        listOf(1.00f to "100% (Identity)", 1.08f to "108%", 1.10f to "110%", 1.12f to "112%", 1.14f to "114%").forEach { (factor, label) ->
+                            val active = kotlin.math.abs(project.autoZoomTargetFactor - factor) < 0.008f
+                            Surface(
+                                color = if (active) VioletAccent.copy(alpha = 0.26f) else StudioElevated,
+                                shape = RoundedCornerShape(6.dp),
+                                modifier = Modifier
+                                    .border(1.dp, if (active) VioletAccent else StudioBorder, RoundedCornerShape(6.dp))
+                                    .clickable { viewModel.setAutoZoomTargetFactor(factor) }
+                                    .testTag("zoom_preset_${(factor * 100).toInt()}")
+                            ) {
+                                Text(
+                                    text = label,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = if (active) Color.White else TextSecondary,
+                                    modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    // Active Clip Speech & Keyframe Telemetry
+                    Text(
+                        text = "Clip ${clip.title}: Start KF ${(startTransform.uniformScale * 100).toInt()}% → End KF ${(endTransform.uniformScale * 100).toInt()}% (${clip.zoomDirection.label})" +
+                            if (clip.speechText.isNotBlank()) " • \"${clip.speechText}\"" else "",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = TextPrimary,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        SmallActionButton("Cycle Motion (${clip.zoomDirection.label})") {
+                            viewModel.cycleSelectedClipZoomDirection()
+                        }
+                        SmallActionButton("Merge / Remove Split") {
+                            viewModel.removeSplitAndMergeSelectedClip()
+                        }
+                    }
+
+                    if (autoSummary.isNotBlank()) {
+                        Text(
+                            text = autoSummary,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = AudioEmerald
+                        )
+                    }
+
+                    capCutResult?.let { res ->
+                        if (res.success) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = res.message,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = CyanAccent,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                SmallActionButton("Share Draft", tint = CyanAccent) {
+                                    viewModel.shareCapCutDraftOrMp4(res.draftZipFilePath)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -136,7 +303,7 @@ private fun EditClipInspectorPanel(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Clip: ${clip.title} (${NovaCutViewModel.formatShortDuration(KeyframeAndSpeedEngine.computeEffectiveClipDurationMs(clip))})",
+                    text = "Clip: ${clip.title} (${NovaCutViewModel.formatShortDuration(effDur)})",
                     style = MaterialTheme.typography.titleSmall,
                     color = TextPrimary
                 )

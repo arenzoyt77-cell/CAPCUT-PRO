@@ -1,7 +1,6 @@
 package com.example.model
 
 import com.example.R
-import com.squareup.moshi.JsonClass
 import java.util.UUID
 
 enum class AspectRatioMode(val label: String, val ratioWidth: Float, val ratioHeight: Float) {
@@ -14,7 +13,137 @@ enum class AspectRatioMode(val label: String, val ratioWidth: Float, val ratioHe
 
     val aspectValue: Float
         get() = ratioWidth / ratioHeight
+
+    companion object {
+        fun fromDimensions(width: Int, height: Int): AspectRatioMode {
+            if (width <= 0 || height <= 0) return RATIO_9_16
+            val ratio = width.toFloat() / height.toFloat()
+            return entries.minByOrNull { kotlin.math.abs(it.aspectValue - ratio) } ?: if (height > width) RATIO_9_16 else RATIO_16_9
+        }
+    }
 }
+
+/**
+ * Canonical representation of the source video geometry.
+ * Rotation metadata is normalized and applied ONCE to compute [displayWidth] and [displayHeight].
+ */
+data class SourceVideoGeometry(
+    val rawWidth: Int = 1080,
+    val rawHeight: Int = 1920,
+    val rotationDegrees: Int = 0, // Normalized to 0, 90, 180, or 270
+    val pixelAspectRatio: Float = 1.0f,
+    val frameRate: Float = 30f,
+    val durationMs: Long = 8000L,
+    val hasAudio: Boolean = true,
+    val bitrateBps: Long = 16_000_000L,
+    val fileSizeMb: Float = 14.2f
+) {
+    val normalizedRotation: Int
+        get() = ((rotationDegrees % 360) + 360) % 360
+
+    val isRotationSwapped: Boolean
+        get() = normalizedRotation == 90 || normalizedRotation == 270
+
+    val displayWidth: Int
+        get() = (((if (isRotationSwapped) rawHeight else rawWidth).coerceAtLeast(1)) * pixelAspectRatio.coerceIn(0.5f, 2.0f)).toInt().coerceAtLeast(1)
+
+    val displayHeight: Int
+        get() = (if (isRotationSwapped) rawWidth else rawHeight).coerceAtLeast(1)
+
+    val displayAspectRatio: Float
+        get() = displayWidth.toFloat() / displayHeight.toFloat()
+
+    val isPortrait: Boolean
+        get() = displayHeight > displayWidth
+
+    val canonicalAspectRatioMode: AspectRatioMode
+        get() = AspectRatioMode.fromDimensions(displayWidth, displayHeight)
+}
+
+/**
+ * Canonical uniform-only transform state for a video frame.
+ * Guarantees rotation = 0, skewX = 0, skewY = 0, and scaleX == scaleY for automatic edits.
+ */
+data class TransformData(
+    val uniformScale: Float = 1.0f,
+    val scaleX: Float = 1.0f,
+    val scaleY: Float = 1.0f,
+    val posX: Float = 0.0f,
+    val posY: Float = 0.0f,
+    val rotationDegrees: Float = 0.0f,
+    val skewX: Float = 0.0f,
+    val skewY: Float = 0.0f
+) {
+    val isGeometrySacredCompliant: Boolean
+        get() = kotlin.math.abs(scaleX - scaleY) < 0.0001f &&
+            kotlin.math.abs(rotationDegrees) < 0.0001f &&
+            kotlin.math.abs(skewX) < 0.0001f &&
+            kotlin.math.abs(skewY) < 0.0001f &&
+            uniformScale >= 0.1f
+}
+
+enum class AutomaticMotionMode(val label: String, val description: String) {
+    SIMPLE("Simple Motion", "Every clip: 100% start keyframe → uniform subtle zoom end keyframe"),
+    SMART("Smart Motion", "Context-aware zoom in/out & crop-protected subject framing per clip")
+}
+
+enum class ZoomDirection(val label: String) {
+    ZOOM_IN("Zoom In"),
+    ZOOM_OUT("Zoom Out"),
+    SUBTLE_DRIFT_IN("Subtle Move + Zoom"),
+    STATIC_100("Static 100%")
+}
+
+/**
+ * Millisecond-accurate word timestamp from SpeechAnalyzer / WordTimestampAnalyzer.
+ */
+data class WordTimestamp(
+    val word: String,
+    val startTimeMs: Long,
+    val endTimeMs: Long,
+    val confidence: Float = 0.95f,
+    val isSentenceEnd: Boolean = false,
+    val isClausePause: Boolean = false
+)
+
+/**
+ * Canonical speech segment detected by SpeechSegmentDetector.
+ */
+data class SpeechSegment(
+    val id: String = UUID.randomUUID().toString(),
+    val startTimeMs: Long,
+    val endTimeMs: Long,
+    val text: String,
+    val confidence: Float = 0.94f,
+    val words: List<WordTimestamp> = emptyList(),
+    val pauseAfterMs: Long = 0L,
+    val semanticContinuityScore: Float = 0.0f
+)
+
+/**
+ * Snapshot of the initial AI-generated automatic edit state so RESET AUTOMATIC EDIT
+ * restores original detected splits, automatic keyframes, and motion values without re-importing.
+ */
+data class AutoEditSnapshot(
+    val sourceGeometry: SourceVideoGeometry,
+    val motionMode: AutomaticMotionMode,
+    val targetZoomFactor: Float,
+    val detectedSegments: List<SpeechSegment>,
+    val splitPointsMs: List<Long>,
+    val generatedClips: List<TimelineClip>,
+    val generatedCaptions: List<TextClip>
+)
+
+data class CapCutDraftExportResult(
+    val success: Boolean,
+    val draftDirectoryPath: String = "",
+    val draftZipFilePath: String = "",
+    val fallbackMp4Path: String = "",
+    val exportedSegmentsCount: Int = 0,
+    val exportedKeyframesCount: Int = 0,
+    val usedMp4ShareFallback: Boolean = false,
+    val message: String = ""
+)
 
 enum class CanvasBackgroundType(val label: String) {
     SOLID_COLOR("Color"),
@@ -22,7 +151,6 @@ enum class CanvasBackgroundType(val label: String) {
     GRADIENT("Gradient")
 }
 
-@JsonClass(generateAdapter = true)
 data class CanvasConfig(
     val type: CanvasBackgroundType = CanvasBackgroundType.SOLID_COLOR,
     val solidColorHex: Long = 0xFF06080CL,
@@ -60,7 +188,6 @@ enum class KeyframeProperty(
     EFFECT_INTENSITY("Effect Intensity", 0.8f, 0f, 1f)
 }
 
-@JsonClass(generateAdapter = true)
 data class Keyframe(
     val id: String = UUID.randomUUID().toString(),
     val timestampMs: Long, // Relative to clip start (0..clipEffectiveDurationMs)
@@ -69,13 +196,11 @@ data class Keyframe(
     val interpolation: KeyframeInterpolation = KeyframeInterpolation.EASE_IN_OUT
 )
 
-@JsonClass(generateAdapter = true)
 data class SpeedPoint(
     val positionFraction: Float, // 0.0f .. 1.0f across clip
     val speedMultiplier: Float   // 0.1f .. 10.0f
 )
 
-@JsonClass(generateAdapter = true)
 data class HslAdjustment(
     val bandName: String,
     val hueShift: Float = 0f,       // -180f..180f
@@ -83,13 +208,11 @@ data class HslAdjustment(
     val luminanceShift: Float = 0f   // -1f..1f
 )
 
-@JsonClass(generateAdapter = true)
 data class CurveControlPoint(
     val input: Float,  // 0f..1f
     val output: Float  // 0f..1f
 )
 
-@JsonClass(generateAdapter = true)
 data class ColorAdjustment(
     val brightness: Float = 0f,    // -1f..1f
     val contrast: Float = 0f,      // -1f..1f
@@ -149,7 +272,6 @@ enum class MaskType(val label: String) {
     HEART("Heart")
 }
 
-@JsonClass(generateAdapter = true)
 data class MaskConfig(
     val type: MaskType = MaskType.NONE,
     val centerX: Float = 0.5f,
@@ -174,7 +296,6 @@ enum class BlendModeType(val label: String) {
     ADD("Linear Dodge (Add)")
 }
 
-@JsonClass(generateAdapter = true)
 data class CutoutConfig(
     val autoCutoutEnabled: Boolean = false,
     val chromaKeyEnabled: Boolean = false,
@@ -187,7 +308,6 @@ data class CutoutConfig(
     val neonStrokeColorHex: Long = 0xFF00E5FFL
 )
 
-@JsonClass(generateAdapter = true)
 data class ClipAnimation(
     val inAnimId: String = "none",
     val inDurationMs: Long = 500L,
@@ -197,14 +317,12 @@ data class ClipAnimation(
     val loopCycleMs: Long = 1200L
 )
 
-@JsonClass(generateAdapter = true)
 data class TransitionConfig(
     val transitionId: String = "none",
     val durationMs: Long = 600L,
     val intensity: Float = 1f
 )
 
-@JsonClass(generateAdapter = true)
 data class TimelineClip(
     val id: String = UUID.randomUUID().toString(),
     val title: String,
@@ -247,7 +365,11 @@ data class TimelineClip(
     val animation: ClipAnimation = ClipAnimation(),
     val transitionAfter: TransitionConfig = TransitionConfig(),
     val keyframes: List<Keyframe> = emptyList(),
-    val accentColorHex: Long = 0xFF00E5FFL
+    val accentColorHex: Long = 0xFF00E5FFL,
+    val speechText: String = "",
+    val zoomDirection: ZoomDirection = ZoomDirection.ZOOM_IN,
+    val isAutoSplitClip: Boolean = false,
+    val sourceGeometry: SourceVideoGeometry? = null
 )
 
 enum class AudioCategory(val label: String) {
@@ -257,7 +379,6 @@ enum class AudioCategory(val label: String) {
     VOICEOVER("Voiceover")
 }
 
-@JsonClass(generateAdapter = true)
 data class AudioClip(
     val id: String = UUID.randomUUID().toString(),
     val title: String,
@@ -277,14 +398,12 @@ data class AudioClip(
     val beatMarkersMs: List<Long> = listOf(500L, 1500L, 2500L, 3500L, 4500L, 5500L, 6500L, 7500L)
 )
 
-@JsonClass(generateAdapter = true)
 data class CaptionWordTiming(
     val word: String,
     val startOffsetMs: Long,
     val endOffsetMs: Long
 )
 
-@JsonClass(generateAdapter = true)
 data class TextClip(
     val id: String = UUID.randomUUID().toString(),
     val text: String,
@@ -319,7 +438,6 @@ data class TextClip(
     val keyframes: List<Keyframe> = emptyList()
 )
 
-@JsonClass(generateAdapter = true)
 data class EffectTrackItem(
     val id: String = UUID.randomUUID().toString(),
     val effectDefId: String,
@@ -334,7 +452,6 @@ data class EffectTrackItem(
     val keyframes: List<Keyframe> = emptyList()
 )
 
-@JsonClass(generateAdapter = true)
 data class StickerClip(
     val id: String = UUID.randomUUID().toString(),
     val stickerDefId: String,
@@ -352,7 +469,6 @@ data class StickerClip(
     val keyframes: List<Keyframe> = emptyList()
 )
 
-@JsonClass(generateAdapter = true)
 data class VideoProject(
     val id: String = UUID.randomUUID().toString(),
     val name: String,
@@ -375,7 +491,12 @@ data class VideoProject(
     val customBitrateMbps: Float = 24f,
     val coverDrawableRes: Int = R.drawable.img_sample_cyberpunk,
     val coverTitleText: String = "",
-    val templateSourceId: String? = null
+    val templateSourceId: String? = null,
+    val sourceGeometry: SourceVideoGeometry = SourceVideoGeometry(),
+    val automaticMotionMode: AutomaticMotionMode = AutomaticMotionMode.SIMPLE,
+    val autoZoomTargetFactor: Float = 1.10f,
+    val detectedSpeechSegments: List<SpeechSegment> = emptyList(),
+    val autoEditSnapshot: AutoEditSnapshot? = null
 )
 
 enum class MediaAlbumCategory(val label: String) {
